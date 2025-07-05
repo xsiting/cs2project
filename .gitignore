@@ -1,0 +1,7 @@
+# Ignore folders
+asio/
+build/
+openssl/
+
+# Ignore single header file
+crow_all.h
