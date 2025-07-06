@@ -11,7 +11,7 @@ include_directories(${CMAKE_SOURCE_DIR}/asio/include)
 link_directories(${CMAKE_SOURCE_DIR}/openssl/lib)
 
 # Create executable
-add_executable(crow_login_system main.cpp)
+add_executable(crow_login_system main.cpp user.cpp utility.cpp)
 
 # Link OpenSSL manually
 target_link_libraries(crow_login_system libssl libcrypto)
