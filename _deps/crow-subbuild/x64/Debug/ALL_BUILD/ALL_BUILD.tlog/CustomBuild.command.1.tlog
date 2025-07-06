@@ -1,0 +1,10 @@
+^C:\USERS\KC\DESKTOP\CROWTEST\BUILD\_DEPS\CROW-SUBBUILD\CMAKELISTS.TXT
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/KC/Desktop/CrowTest/build/_deps/crow-subbuild -BC:/Users/KC/Desktop/CrowTest/build/_deps/crow-subbuild --check-stamp-file C:/Users/KC/Desktop/CrowTest/build/_deps/crow-subbuild/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

@@ -1,0 +1,10 @@
+^C:\USERS\KC\DESKTOP\CROWTEST\BUILD\_DEPS\CROW-SUBBUILD\CMAKEFILES\16F5F58FA39BCDA000FA477F94F7BCBD\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/KC/Desktop/CrowTest/build/_deps/crow-subbuild -BC:/Users/KC/Desktop/CrowTest/build/_deps/crow-subbuild --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file C:/Users/KC/Desktop/CrowTest/build/_deps/crow-subbuild/crow-populate.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\KC\Desktop\CrowTest\build\CMakeFiles\6d220fa0e59ca2ba4970fe3ca9aa99a3\INSTALL_force.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{01607E6D-CD95-37CB-BF63-1DBEDB63C480}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

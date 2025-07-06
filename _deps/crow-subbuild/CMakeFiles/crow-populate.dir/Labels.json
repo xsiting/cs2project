@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "C:/Users/KC/Desktop/CrowTest/build/_deps/crow-subbuild/CMakeFiles/crow-populate"
+		},
+		{
+			"file" : "C:/Users/KC/Desktop/CrowTest/build/_deps/crow-subbuild/CMakeFiles/16f5f58fa39bcda000fa477f94f7bcbd/crow-populate.rule"
+		},
+		{
+			"file" : "C:/Users/KC/Desktop/CrowTest/build/_deps/crow-subbuild/CMakeFiles/c8ffcf3536a5851a575c162c386fd8da/crow-populate-complete.rule"
+		},
+		{
+			"file" : "C:/Users/KC/Desktop/CrowTest/build/_deps/crow-subbuild/CMakeFiles/fe94857a66ed1fcddd9a850a665ee2ac/crow-populate-build.rule"
+		},
+		{
+			"file" : "C:/Users/KC/Desktop/CrowTest/build/_deps/crow-subbuild/CMakeFiles/fe94857a66ed1fcddd9a850a665ee2ac/crow-populate-configure.rule"
+		},
+		{
+			"file" : "C:/Users/KC/Desktop/CrowTest/build/_deps/crow-subbuild/CMakeFiles/fe94857a66ed1fcddd9a850a665ee2ac/crow-populate-download.rule"
+		},
+		{
+			"file" : "C:/Users/KC/Desktop/CrowTest/build/_deps/crow-subbuild/CMakeFiles/fe94857a66ed1fcddd9a850a665ee2ac/crow-populate-install.rule"
+		},
+		{
+			"file" : "C:/Users/KC/Desktop/CrowTest/build/_deps/crow-subbuild/CMakeFiles/fe94857a66ed1fcddd9a850a665ee2ac/crow-populate-mkdir.rule"
+		},
+		{
+			"file" : "C:/Users/KC/Desktop/CrowTest/build/_deps/crow-subbuild/CMakeFiles/fe94857a66ed1fcddd9a850a665ee2ac/crow-populate-patch.rule"
+		},
+		{
+			"file" : "C:/Users/KC/Desktop/CrowTest/build/_deps/crow-subbuild/CMakeFiles/fe94857a66ed1fcddd9a850a665ee2ac/crow-populate-test.rule"
+		},
+		{
+			"file" : "C:/Users/KC/Desktop/CrowTest/build/_deps/crow-subbuild/CMakeFiles/fe94857a66ed1fcddd9a850a665ee2ac/crow-populate-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"crow-populate"
+		],
+		"name" : "crow-populate"
+	}
+}

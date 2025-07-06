@@ -1,0 +1,150 @@
+^C:\USERS\KC\DESKTOP\CROWTEST\BUILD\_DEPS\CROW-SUBBUILD\CMAKEFILES\FE94857A66ED1FCDDD9A850A665EE2AC\CROW-POPULATE-MKDIR.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -Dcfgdir=/Debug -P C:/Users/KC/Desktop/CrowTest/build/_deps/crow-subbuild/crow-populate-prefix/tmp/crow-populate-mkdirs.cmake
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E touch C:/Users/KC/Desktop/CrowTest/build/_deps/crow-subbuild/crow-populate-prefix/src/crow-populate-stamp/Debug/crow-populate-mkdir
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\USERS\KC\DESKTOP\CROWTEST\BUILD\_DEPS\CROW-SUBBUILD\CMAKEFILES\FE94857A66ED1FCDDD9A850A665EE2AC\CROW-POPULATE-DOWNLOAD.RULE
+setlocal
+cd C:\Users\KC\Desktop\CrowTest\build\_deps
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -DCMAKE_MESSAGE_LOG_LEVEL=VERBOSE -P C:/Users/KC/Desktop/CrowTest/build/_deps/crow-subbuild/crow-populate-prefix/tmp/crow-populate-gitclone.cmake
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E touch C:/Users/KC/Desktop/CrowTest/build/_deps/crow-subbuild/crow-populate-prefix/src/crow-populate-stamp/Debug/crow-populate-download
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\USERS\KC\DESKTOP\CROWTEST\BUILD\_DEPS\CROW-SUBBUILD\CMAKEFILES\FE94857A66ED1FCDDD9A850A665EE2AC\CROW-POPULATE-UPDATE.RULE
+setlocal
+cd C:\Users\KC\Desktop\CrowTest\build\_deps\crow-src
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -Dcan_fetch=YES -DCMAKE_MESSAGE_LOG_LEVEL=VERBOSE -P C:/Users/KC/Desktop/CrowTest/build/_deps/crow-subbuild/crow-populate-prefix/tmp/crow-populate-gitupdate.cmake
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\USERS\KC\DESKTOP\CROWTEST\BUILD\_DEPS\CROW-SUBBUILD\CMAKEFILES\FE94857A66ED1FCDDD9A850A665EE2AC\CROW-POPULATE-PATCH.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -E echo_append
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E touch C:/Users/KC/Desktop/CrowTest/build/_deps/crow-subbuild/crow-populate-prefix/src/crow-populate-stamp/Debug/crow-populate-patch
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\USERS\KC\DESKTOP\CROWTEST\BUILD\_DEPS\CROW-SUBBUILD\CMAKEFILES\FE94857A66ED1FCDDD9A850A665EE2AC\CROW-POPULATE-CONFIGURE.RULE
+setlocal
+cd C:\Users\KC\Desktop\CrowTest\build\_deps\crow-build
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E echo_append
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E touch C:/Users/KC/Desktop/CrowTest/build/_deps/crow-subbuild/crow-populate-prefix/src/crow-populate-stamp/Debug/crow-populate-configure
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\USERS\KC\DESKTOP\CROWTEST\BUILD\_DEPS\CROW-SUBBUILD\CMAKEFILES\FE94857A66ED1FCDDD9A850A665EE2AC\CROW-POPULATE-BUILD.RULE
+setlocal
+cd C:\Users\KC\Desktop\CrowTest\build\_deps\crow-build
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E echo_append
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E touch C:/Users/KC/Desktop/CrowTest/build/_deps/crow-subbuild/crow-populate-prefix/src/crow-populate-stamp/Debug/crow-populate-build
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\USERS\KC\DESKTOP\CROWTEST\BUILD\_DEPS\CROW-SUBBUILD\CMAKEFILES\FE94857A66ED1FCDDD9A850A665EE2AC\CROW-POPULATE-INSTALL.RULE
+setlocal
+cd C:\Users\KC\Desktop\CrowTest\build\_deps\crow-build
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E echo_append
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E touch C:/Users/KC/Desktop/CrowTest/build/_deps/crow-subbuild/crow-populate-prefix/src/crow-populate-stamp/Debug/crow-populate-install
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\USERS\KC\DESKTOP\CROWTEST\BUILD\_DEPS\CROW-SUBBUILD\CMAKEFILES\FE94857A66ED1FCDDD9A850A665EE2AC\CROW-POPULATE-TEST.RULE
+setlocal
+cd C:\Users\KC\Desktop\CrowTest\build\_deps\crow-build
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E echo_append
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E touch C:/Users/KC/Desktop/CrowTest/build/_deps/crow-subbuild/crow-populate-prefix/src/crow-populate-stamp/Debug/crow-populate-test
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\USERS\KC\DESKTOP\CROWTEST\BUILD\_DEPS\CROW-SUBBUILD\CMAKEFILES\C8FFCF3536A5851A575C162C386FD8DA\CROW-POPULATE-COMPLETE.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/Users/KC/Desktop/CrowTest/build/_deps/crow-subbuild/CMakeFiles/Debug
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E touch C:/Users/KC/Desktop/CrowTest/build/_deps/crow-subbuild/CMakeFiles/Debug/crow-populate-complete
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E touch C:/Users/KC/Desktop/CrowTest/build/_deps/crow-subbuild/crow-populate-prefix/src/crow-populate-stamp/Debug/crow-populate-done
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\USERS\KC\DESKTOP\CROWTEST\BUILD\_DEPS\CROW-SUBBUILD\CMAKEFILES\16F5F58FA39BCDA000FA477F94F7BCBD\CROW-POPULATE.RULE
+setlocal
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\USERS\KC\DESKTOP\CROWTEST\BUILD\_DEPS\CROW-SUBBUILD\CMAKELISTS.TXT
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/KC/Desktop/CrowTest/build/_deps/crow-subbuild -BC:/Users/KC/Desktop/CrowTest/build/_deps/crow-subbuild --check-stamp-file C:/Users/KC/Desktop/CrowTest/build/_deps/crow-subbuild/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
