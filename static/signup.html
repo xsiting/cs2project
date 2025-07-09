@@ -1,12 +1,86 @@
 <!DOCTYPE html>
-<html>
-<head><title>Signup</title></head>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sign Up</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #ACB6E5, #74ebd5);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .signup-container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            width: 350px;
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 24px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 16px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .footer {
+            margin-top: 16px;
+            font-size: 14px;
+        }
+
+        .footer a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
 <body>
-  <h1>Signup Page</h1>
-  <form method="POST" action="/signup" enctype="application/x-www-form-urlencoded">
-    Username: <input name="username" /><br />
-    Password: <input name="password" type="password" /><br />
-    <button type="submit">Sign Up</button>
-  </form>
+    <div class="signup-container">
+        <h1>Create Account</h1>
+        <form method="POST" action="/signup">
+            <input type="text" name="username" placeholder="Choose a Username" required>
+            <input type="password" name="password" placeholder="Create a Password" required>
+            <button type="submit">Sign Up</button>
+        </form>
+        <div class="footer">
+            Already have an account? <a href="/login">Login here</a>
+        </div>
+    </div>
 </body>
 </html>

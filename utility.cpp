@@ -21,7 +21,7 @@ vector<User> loadUsersFromFile(const string& filename) {
 
 void saveUsersToFile(const vector<User>& users, const string& filename) {
     
-    std::cerr << "📝 saveUsersToFile: saving " << users.size() 
+    std::cerr << "saveUsersToFile: saving " << users.size() 
           << " users to " << filename << std::endl;
     json data = json::object();
 

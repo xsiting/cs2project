@@ -1,6 +1,6 @@
 #include "crow_all.h"
 #include "user.h"
-#include "utility.h"            // ADD THIS
+#include "utility.h"            
 #include <fstream>
 #include <sstream>
 #include <iomanip>
@@ -8,17 +8,35 @@
 #include <vector>
 #include <filesystem>
 #include <algorithm>
+#include <unordered_map>
+#include <random>
+
+std::unordered_map<std::string, std::string> sessionMap;
+
+// Function to generate a random alphanumeric token
+std::string generateToken(size_t length = 32) {
+    static const char charset[] =
+        "0123456789"
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        "abcdefghijklmnopqrstuvwxyz";
+    static std::mt19937 rng(std::random_device{}());
+    static std::uniform_int_distribution<> dist(0, sizeof(charset) - 2);
+
+    std::string token;
+    for (size_t i = 0; i < length; ++i)
+        token += charset[dist(rng)];
+    return token;
+}
 
 
 
-// Util: Load a static HTML file
 std::string loadFile(const std::string& relativePath) {
     std::filesystem::path fullPath = std::filesystem::current_path() / relativePath;
-    std::cerr << "📄 Trying to load: " << fullPath << std::endl;
+    std::cerr << "Trying to load: " << fullPath << std::endl;
 
     std::ifstream in(fullPath);
     if (!in.is_open()) {
-        std::cerr << "❌ Failed to open file.\n";
+        std::cerr << "Failed to open file.\n";
         return "<h1>File Not Found</h1>";
     }
 
@@ -28,7 +46,7 @@ std::string loadFile(const std::string& relativePath) {
 }
 
 
-// Util: SHA-256 password hashing
+
 std::string hashPassword(const std::string& password) {
     unsigned char hash[SHA256_DIGEST_LENGTH];
     SHA256((unsigned char*)password.c_str(), password.size(), hash);
@@ -40,7 +58,7 @@ std::string hashPassword(const std::string& password) {
     return ss.str();
 }
 
-// Util: Parse x-www-form-urlencoded body manually
+
 std::pair<std::string, std::string> parseForm(const std::string& body) {
     std::string username, password;
     auto pos_user = body.find("username=");
@@ -57,27 +75,26 @@ std::pair<std::string, std::string> parseForm(const std::string& body) {
     return {username, password};
 }
 
-// ==================== MAIN ====================
 
 int main() {
     crow::SimpleApp app;
 
-    std::cerr << "📂 Current dir: " << std::filesystem::current_path() << "\n";
+    std::cerr << "Current dir: " << std::filesystem::current_path() << "\n";
 
-    // Serve signup page
+    
     CROW_ROUTE(app, "/signup").methods("GET"_method)([] {
         return crow::response(loadFile("../../static/signup.html"));
     });
 
-    // Serve login page
+    
     CROW_ROUTE(app, "/login").methods("GET"_method)([] {
         return crow::response(loadFile("../../static/login.html"));
     });
 
-    // Handle signup
+    
     CROW_ROUTE(app, "/signup").methods("POST"_method)([](const crow::request& req) {
-        std::cerr << "🚀 /signup POST called\n";
-        std::cerr << "📦 Body: " << req.body << "\n";
+        std::cerr << "/signup POST called\n";
+        std::cerr << "Body: " << req.body << "\n";
 
         auto [username, password] = parseForm(req.body);
         if (username.empty() || password.empty()) {
@@ -93,14 +110,16 @@ int main() {
         users.push_back(User(username, hashed));
         saveUsersToFile(users);
 
-        return crow::response(200, "✅ Signup successful! Go to <a href='/login'>Login</a>");
+        crow::response res(303);
+        res.add_header("Location", "/login");
+        return res;
     });
 
 
 
     CROW_ROUTE(app, "/login").methods("POST"_method)([](const crow::request& req) {
-        std::cerr << "🚀 /login POST called\n";
-        std::cerr << "📦 Body: " << req.body << "\n";
+        std::cerr << "/login POST called\n";
+        std::cerr << "Body: " << req.body << "\n";
 
         auto [username, password] = parseForm(req.body);
         if (username.empty() || password.empty()) {
@@ -111,11 +130,23 @@ int main() {
         User* user = findUserByUsername(users, username);
 
         if (!user || user->getPasswordHash() != hashPassword(password)) {
-            return crow::response(401, "❌ Invalid credentials");
+            return crow::response(401, "Invalid credentials");
         }
+        std::string token = generateToken();
+        sessionMap[token] = username;
+        
 
-        return crow::response(200, "✅ Login successful!");
+    crow::response res(303);
+    std::cerr << "Token is " << token << endl;
+    res.add_header("Set-Cookie", "session=" + token + "; Path=/; HttpOnly");
+    res.add_header("Location", "/dashboard");  // Redirect after login
+    return res;
     });
+
+    CROW_ROUTE(app, "/dashboard").methods("GET"_method)([] {
+    return crow::response(loadFile("../../static/dashboard.html"));
+});
+
 
 
     app.bindaddr("0.0.0.0").port(18080) .multithreaded().run();
