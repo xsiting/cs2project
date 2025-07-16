@@ -32,18 +32,30 @@ std::string generateToken(size_t length = 32) {
     return token;
 }
 
+// Helper to get the absolute path to the static directory
+std::string getStaticPath(const std::string& filename) {
+    // Always resolve relative to the project root static/ directory
+    std::filesystem::path cwd = std::filesystem::current_path();
+    std::filesystem::path staticDir;
+    // Try to find the static directory up to 3 levels up
+    for (int i = 0; i < 4; ++i) {
+        if (std::filesystem::exists(cwd / "static" / filename)) {
+            staticDir = cwd / "static" / filename;
+            break;
+        }
+        cwd = cwd.parent_path();
+    }
+    return staticDir.string();
+}
 
-
-std::string loadFile(const std::string& relativePath) {
-    std::filesystem::path fullPath = std::filesystem::current_path() / relativePath;
-    std::cerr << "Trying to load: " << fullPath << std::endl;
-
-    std::ifstream in(fullPath);
+std::string loadFile(const std::string& filename) {
+    std::string path = getStaticPath(filename);
+    std::cerr << "Trying to load: " << path << std::endl;
+    std::ifstream in(path);
     if (!in.is_open()) {
-        std::cerr << "Failed to open file.\n";
+        std::cerr << "Failed to open file: " << path << "\n";
         return "<h1>File Not Found</h1>";
     }
-
     std::ostringstream contents;
     contents << in.rdbuf();
     return contents.str();
@@ -114,18 +126,34 @@ std::string urlDecode(const std::string& str) {
 int main() {
     crow::SimpleApp app;
 
+    std::cout << "\n==============================\n";
+    std::cout << "Server starting on http://localhost:18080/" << std::endl;
+    std::cout << "==============================\n";
     std::cerr << "Current dir: " << std::filesystem::current_path() << "\n";
 
-    
-    CROW_ROUTE(app, "/signup").methods("GET"_method)([] {
-        std::cerr << "[DEBUG] /signup GET called\n";
-        return crow::response(loadFile("../../static/signup.html"));
+    // Serve static files (CSS, JS, images, etc.)
+    CROW_ROUTE(app, "/static/<string>")
+    ([](const crow::request& req, crow::response& res, std::string filename){
+        std::string path = getStaticPath(filename);
+        std::ifstream in(path, std::ios::binary);
+        if (!in) {
+            res.code = 404;
+            res.end();
+            return;
+        }
+        std::ostringstream contents;
+        contents << in.rdbuf();
+        res.write(contents.str());
+        res.end();
     });
 
-    
+    CROW_ROUTE(app, "/signup").methods("GET"_method)([] {
+        std::cerr << "[DEBUG] /signup GET called\n";
+        return crow::response(loadFile("signup.html"));
+    });
     CROW_ROUTE(app, "/login").methods("GET"_method)([] {
         std::cerr << "[DEBUG] /login GET called\n";
-        return crow::response(loadFile("../../static/login.html"));
+        return crow::response(loadFile("login.html"));
     });
 
     
@@ -242,7 +270,7 @@ int main() {
             res.add_header("Location", "/login");
             return res;
         }
-        std::string html = loadFile("../../static/dashboard.html");
+        std::string html = loadFile("dashboard.html");
         // Optionally, could inject username here
         return crow::response(html);
     });
@@ -358,5 +386,5 @@ int main() {
         return crow::response(200);
     });
 
-    app.bindaddr("0.0.0.0").port(18080) .multithreaded().run();
+    app.bindaddr("0.0.0.0").port(18080).multithreaded().run();
 }

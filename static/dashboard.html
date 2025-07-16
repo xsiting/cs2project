@@ -4,114 +4,72 @@
     <meta charset="UTF-8">
     <title>bateekh Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-    <style>
-        body {
-            margin: 0;
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #c3ec52, #0ba29d);
-            color: #333;
-        }
-
-        header {
-            background-color: rgba(255, 255, 255, 0.95);
-            padding: 10px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        .logo {
-            font-size: 24px;
-            font-weight: 700;
-            color: #0ba29d;
-            display: flex;
-            align-items: center;
-        }
-
-        .logo::before {
-            content: "🍉 ";
-            font-size: 24px;
-        }
-
-        .welcome {
-            font-size: 18px;
-            font-weight: 500;
-            color: #333;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 40px auto;
-            background: rgba(255,255,255,0.95);
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-        }
-
-        .post {
-            background: #f9f9f9;
-            margin-bottom: 20px;
-            padding: 16px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .post h2 {
-            margin: 0 0 8px;
-            font-size: 18px;
-            color: #0ba29d;
-        }
-
-        .post p {
-            margin: 0;
-            font-size: 14px;
-        }
-        .post d {
-            margin: 0;
-            font-size: 14px;
-        }
-
-        footer {
-            text-align: center;
-            padding: 10px;
-            font-size: 12px;
-            color: white;
-        }
-    </style>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <header>
-        <div class="logo">bateekh</div>
-        <div class="welcome">Welcome to Bateekh</div>
-    </header>
-
-    <div class="container">
-        <div id="friend-section" style="margin-bottom:32px;">
-            <h3>Friends</h3>
-            <div id="friend-list"></div>
-            <h4>Pending Friend Requests</h4>
-            <div id="pending-requests"></div>
-            <h4>Sent Requests</h4>
-            <div id="sent-requests"></div>
-            <h4>Send Friend Request</h4>
-            <form id="send-friend-form" style="margin-bottom:16px;">
-                <input type="text" id="friend-username" placeholder="Username" required style="padding:6px;border-radius:4px;border:1px solid #ccc;">
-                <button type="submit" style="padding:6px 12px;background:#0ba29d;color:white;border:none;border-radius:4px;">Send Request</button>
-            </form>
-            <h4>Friend Suggestions</h4>
-            <div id="friend-suggestions"></div>
+    <nav>
+        <div class="logo"></div>
+        <div class="nav-links">
+            <a href="/dashboard"><i class="fa-solid fa-house"></i> Dashboard</a>
+            <a href="/logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
         </div>
-        <form action="/post" method="POST" style="margin-bottom: 24px;">
-            <textarea name="text" rows="3" style="width:100%;border-radius:8px;padding:8px;resize:none;" placeholder="What's on your mind?" required></textarea>
-            <button type="submit" style="margin-top:8px;padding:8px 16px;background:#0ba29d;color:white;border:none;border-radius:6px;font-weight:600;">Post</button>
-        </form>
-        <div id="timeline">
-            <!-- Timeline will be loaded here -->
-        </div>
+    </nav>
+    <div class="dashboard-main">
+        <aside class="dashboard-sidebar glass">
+            <div class="profile-card">
+                <div class="profile-avatar">
+                    <span class="avatar-icon">🍉</span>
+                </div>
+                <div class="profile-info">
+                    <div class="profile-username" id="profile-username">Welcome!</div>
+                    <div class="profile-desc">Enjoy your social feed 🍉</div>
+                </div>
+            </div>
+            <div class="sidebar-section glass">
+                <h3><i class="fa-solid fa-user-group"></i> Friends</h3>
+                <div id="friend-list" class="sidebar-list"></div>
+            </div>
+            <div class="sidebar-section glass">
+                <h4><i class="fa-solid fa-clock"></i> Pending Requests</h4>
+                <div id="pending-requests" class="sidebar-list"></div>
+            </div>
+            <div class="sidebar-section glass">
+                <h4><i class="fa-solid fa-paper-plane"></i> Sent Requests</h4>
+                <div id="sent-requests" class="sidebar-list"></div>
+            </div>
+            <div class="sidebar-section glass">
+                <h4><i class="fa-solid fa-user-plus"></i> Send Friend Request</h4>
+                <form id="send-friend-form" class="sidebar-form">
+                    <input type="text" id="friend-username" placeholder="Username" required>
+                    <button type="submit"><i class="fa-solid fa-plus"></i> Send</button>
+                </form>
+                <div id="send-friend-feedback" class="feedback" style="display:none;"></div>
+            </div>
+            <div class="sidebar-section glass">
+                <h4><i class="fa-solid fa-lightbulb"></i> Friend Suggestions</h4>
+                <div id="friend-suggestions" class="sidebar-list"></div>
+            </div>
+        </aside>
+        <main class="dashboard-content">
+            <section class="post-form-card glass">
+                <form action="/post" method="POST" class="mt-4">
+                    <textarea name="text" rows="3" placeholder="What's on your mind?" required></textarea>
+                    <button type="submit" class="mt-2"><i class="fa-solid fa-paper-plane"></i> Post</button>
+                </form>
+                <div id="post-feedback" class="feedback" style="display:none;"></div>
+            </section>
+            <section class="timeline-section glass">
+                <h3><i class="fa-solid fa-stream"></i> Timeline</h3>
+                <div id="timeline">
+                    <!-- Timeline will be loaded here -->
+                </div>
+            </section>
+        </main>
     </div>
-
-    <footer>© 2025 bateekh</footer>
+    <footer>
+        &copy; 2025 bateekh
+    </footer>
     <script>
     function loadTimeline() {
         fetch('/timeline')
@@ -139,6 +97,10 @@
     // Reload timeline after posting
     document.querySelector('form[action="/post"]').addEventListener('submit', function(e) {
         setTimeout(loadTimeline, 500);
+        // Show feedback
+        document.getElementById('post-feedback').style.display = 'block';
+        document.getElementById('post-feedback').textContent = 'Posted!';
+        setTimeout(() => document.getElementById('post-feedback').style.display = 'none', 1500);
     });
     // Send friend request
     document.getElementById('send-friend-form').addEventListener('submit', function(e) {
@@ -150,6 +112,10 @@
             body: 'to=' + encodeURIComponent(uname)
         }).then(() => {
             loadFriends();
+            // Show feedback
+            document.getElementById('send-friend-feedback').style.display = 'block';
+            document.getElementById('send-friend-feedback').textContent = 'Request sent!';
+            setTimeout(() => document.getElementById('send-friend-feedback').style.display = 'none', 1500);
         });
     });
     // Accept/reject/cancel friend requests (event delegation)
