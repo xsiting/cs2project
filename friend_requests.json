@@ -1,0 +1,17 @@
+[
+  {
+    "from": "anas",
+    "status": "accepted",
+    "to": "Anas1"
+  },
+  {
+    "from": "Martin",
+    "status": "accepted",
+    "to": "anas"
+  },
+  {
+    "from": "Martin",
+    "status": "pending",
+    "to": "Anas1"
+  }
+]

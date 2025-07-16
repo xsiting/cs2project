@@ -87,24 +87,93 @@
     </header>
 
     <div class="container">
-        <div class="post">
-            <h2>Ebram</h2>
-            <p>WE NEED THE GRADES PLEAAAASE 😭😭</p>
+        <div id="friend-section" style="margin-bottom:32px;">
+            <h3>Friends</h3>
+            <div id="friend-list"></div>
+            <h4>Pending Friend Requests</h4>
+            <div id="pending-requests"></div>
+            <h4>Sent Requests</h4>
+            <div id="sent-requests"></div>
+            <h4>Send Friend Request</h4>
+            <form id="send-friend-form" style="margin-bottom:16px;">
+                <input type="text" id="friend-username" placeholder="Username" required style="padding:6px;border-radius:4px;border:1px solid #ccc;">
+                <button type="submit" style="padding:6px 12px;background:#0ba29d;color:white;border:none;border-radius:4px;">Send Request</button>
+            </form>
+            <h4>Friend Suggestions</h4>
+            <div id="friend-suggestions"></div>
         </div>
-        <div class="post">
-            <h2>Anas</h2>
-            <p>HE IS THE REAL DEAL</p>
-        </div>
-        <div class="post">
-            <h2>Ibrahim</h2>
-            <p>HE DID THE UML👀👀</p>
-        </div>
-        <div class="post">
-            <h2>Martin</h2>
-            <p>HE WAS HERE TO EMOTIONALLY SUPPORT 😁</p>
+        <form action="/post" method="POST" style="margin-bottom: 24px;">
+            <textarea name="text" rows="3" style="width:100%;border-radius:8px;padding:8px;resize:none;" placeholder="What's on your mind?" required></textarea>
+            <button type="submit" style="margin-top:8px;padding:8px 16px;background:#0ba29d;color:white;border:none;border-radius:6px;font-weight:600;">Post</button>
+        </form>
+        <div id="timeline">
+            <!-- Timeline will be loaded here -->
         </div>
     </div>
 
     <footer>© 2025 bateekh</footer>
+    <script>
+    function loadTimeline() {
+        fetch('/timeline')
+            .then(res => res.text())
+            .then(html => {
+                document.getElementById('timeline').innerHTML = html;
+            });
+    }
+    function loadFriends() {
+        fetch('/friends').then(res => res.text()).then(html => {
+            document.getElementById('friend-list').innerHTML = html;
+        });
+        fetch('/pending_requests').then(res => res.text()).then(html => {
+            document.getElementById('pending-requests').innerHTML = html;
+        });
+        fetch('/sent_requests').then(res => res.text()).then(html => {
+            document.getElementById('sent-requests').innerHTML = html;
+        });
+        fetch('/friend_suggestions').then(res => res.text()).then(html => {
+            document.getElementById('friend-suggestions').innerHTML = html;
+        });
+    }
+    loadTimeline();
+    loadFriends();
+    // Reload timeline after posting
+    document.querySelector('form[action="/post"]').addEventListener('submit', function(e) {
+        setTimeout(loadTimeline, 500);
+    });
+    // Send friend request
+    document.getElementById('send-friend-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const uname = document.getElementById('friend-username').value;
+        fetch('/send_friend_request', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: 'to=' + encodeURIComponent(uname)
+        }).then(() => {
+            loadFriends();
+        });
+    });
+    // Accept/reject/cancel friend requests (event delegation)
+    document.getElementById('friend-section').addEventListener('click', function(e) {
+        if (e.target.classList.contains('accept-request')) {
+            fetch('/accept_friend_request', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: 'from=' + encodeURIComponent(e.target.dataset.from)
+            }).then(() => loadFriends());
+        } else if (e.target.classList.contains('reject-request')) {
+            fetch('/reject_friend_request', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: 'from=' + encodeURIComponent(e.target.dataset.from)
+            }).then(() => loadFriends());
+        } else if (e.target.classList.contains('cancel-request')) {
+            fetch('/cancel_friend_request', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: 'to=' + encodeURIComponent(e.target.dataset.to)
+            }).then(() => loadFriends());
+        }
+    });
+    </script>
 </body>
 </html>
