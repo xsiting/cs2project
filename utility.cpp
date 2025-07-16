@@ -1,6 +1,5 @@
 #include "utility.h"
 #include <queue>
-#include <set>
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 
@@ -162,16 +161,19 @@ std::vector<std::string> getSentRequestsByUser(const std::string& username) {
     }
     return result;
 }
-// Mutual friends
+// Mutual friends (no std::set)
 std::vector<std::string> getMutualFriends(const User& a, const User& b) {
-    std::set<std::string> af(a.getFriends().begin(), a.getFriends().end());
+    auto aFriends = a.getFriends();
+    auto bFriends = b.getFriends();
     std::vector<std::string> result;
-    for (const auto& f : b.getFriends()) {
-        if (af.count(f)) result.push_back(f);
+    for (const auto& f : bFriends) {
+        if (std::find(aFriends.begin(), aFriends.end(), f) != aFriends.end()) {
+            result.push_back(f);
+        }
     }
     return result;
 }
-// Friend suggestions: users who are not friends but share the most mutual friends
+// Friend suggestions: users who are not friends but share the most mutual friends (no std::set or std::map)
 std::vector<std::string> suggestFriends(const User& user, const std::vector<User>& allUsers) {
     std::cerr << "[DEBUG] suggestFriends called for user: " << user.getUsername() << std::endl;
     std::vector<std::string> myFriendsVec = user.getFriends();
@@ -182,27 +184,25 @@ std::vector<std::string> suggestFriends(const User& user, const std::vector<User
     std::cerr << "[DEBUG] myFriends size: " << myFriendsVec.size() << " [";
     for (const auto& f : myFriendsVec) std::cerr << f << ",";
     std::cerr << "]" << std::endl;
-    std::set<std::string> myFriends(myFriendsVec.begin(), myFriendsVec.end());
-    std::map<std::string, int> suggestionCounts;
+    std::vector<std::pair<std::string, int>> suggestionCounts;
     for (const auto& other : allUsers) {
-        if (other.getUsername() == user.getUsername() || myFriends.count(other.getUsername())) continue;
+        if (other.getUsername() == user.getUsername()) continue;
+        // Check if already a friend
+        if (std::find(myFriendsVec.begin(), myFriendsVec.end(), other.getUsername()) != myFriendsVec.end()) continue;
         std::vector<std::string> otherFriendsVec = other.getFriends();
         if (otherFriendsVec.empty()) continue;
         std::cerr << "[DEBUG] checking other user: " << other.getUsername() << ", friends size: " << otherFriendsVec.size() << " [";
         for (const auto& f : otherFriendsVec) std::cerr << f << ",";
         std::cerr << "]" << std::endl;
         int mutual = getMutualFriends(user, other).size();
-        if (mutual > 0) suggestionCounts[other.getUsername()] = mutual;
+        if (mutual > 0) suggestionCounts.push_back({other.getUsername(), mutual});
     }
     std::cerr << "[DEBUG] suggestionCounts size: " << suggestionCounts.size() << std::endl;
-    std::vector<std::pair<std::string, int>> sorted;
-    for (const auto& p : suggestionCounts) sorted.push_back(p);
-    std::cerr << "[DEBUG] sorted vector size: " << sorted.size() << std::endl;
-    if (!sorted.empty()) {
-        std::sort(sorted.begin(), sorted.end(), [](const auto& a, const auto& b){return a.second > b.second;});
+    if (!suggestionCounts.empty()) {
+        std::sort(suggestionCounts.begin(), suggestionCounts.end(), [](const auto& a, const auto& b){return a.second > b.second;});
     }
     std::vector<std::string> result;
-    for (const auto& p : sorted) result.push_back(p.first);
+    for (const auto& p : suggestionCounts) result.push_back(p.first);
     std::cerr << "[DEBUG] suggestFriends result size: " << result.size() << std::endl;
     return result;
 }

@@ -3,9 +3,9 @@ body {
     margin: 0;
     padding: 0;
     font-family: 'Poppins', Arial, sans-serif;
-    background: linear-gradient(135deg, #c3ec52 0%, #0ba29d 100%);
+    background: linear-gradient(135deg, #e0f7fa 0%, #b2dfdb 100%);
     min-height: 100vh;
-    color: #222;
+    color: #37474f; /* softer dark gray for text */
     background-attachment: fixed;
 }
 
@@ -65,6 +65,20 @@ nav {
     border-bottom: 2.5px solid #c3ec52;
 }
 
+.nav-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.site-name {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #0ba29d;
+    letter-spacing: 1px;
+    user-select: none;
+    text-shadow: 0 2px 8px #c3ec52aa;
+}
+
 /* Dashboard Layout */
 .dashboard-container {
     max-width: 1200px;
@@ -101,7 +115,7 @@ nav {
 
 /* Post Form */
 form[action="/post"] textarea {
-    width: 100%;
+    width: 96.5%;
     border-radius: 16px;
     padding: 16px;
     resize: none;
@@ -281,20 +295,21 @@ footer {
 /* Dashboard Main Layout */
 .dashboard-main {
     display: flex;
-    max-width: 1400px;
+    max-width: 1800px; /* was 1400px */
     margin: 48px auto 0 auto;
-    gap: 40px;
+    gap: 48px;         /* slightly more gap between sidebar and content */
     min-height: 80vh;
 }
 .dashboard-sidebar {
-    min-width: 320px;
-    max-width: 340px;
+    min-width: 380px;  /* was 320px */
+    max-width: 400px;  /* was 340px */
     display: flex;
     flex-direction: column;
     gap: 24px;
-    background: none;
-    border: none;
-    box-shadow: none;
+    background: rgba(255,255,255,0.7); /* Match post card background */
+    border-radius: 28px;
+    box-shadow: 0 8px 32px 0 rgba(31,38,135,0.10);
+    padding: 18px 8px;
 }
 .profile-card {
     display: flex;
@@ -340,7 +355,7 @@ footer {
     padding: 18px 16px 14px 16px;
     border-radius: 18px;
     box-shadow: 0 2px 12px #c3ec5233;
-    background: rgba(255,255,255,0.6);
+    background: rgba(255,255,255,0.7); /* Match post card background */
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -372,7 +387,8 @@ footer {
     flex: 1 1 0%;
     display: flex;
     flex-direction: column;
-    gap: 32px;
+    gap: 40px; /* was 32px */
+    align-items: stretch;
 }
 .post-form-card {
     margin-bottom: 0;
@@ -380,6 +396,9 @@ footer {
     border-radius: 22px;
     box-shadow: 0 2px 16px #0ba29d22;
     background: rgba(255,255,255,0.7);
+    width: 100%;
+    margin-left: 0;
+    align-self: stretch;
 }
 .timeline-section {
     margin-bottom: 0;
@@ -452,4 +471,43 @@ footer {
     .post-form-card, .timeline-section {
         padding: 10px 6px;
     }
+} 
+
+.post-form-flex {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 16px;
+}
+
+.post-btn {
+    min-width: 160px;
+    min-height: 56px;
+    font-size: 1.25rem;
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 16px;
+    box-shadow: 0 4px 18px #0ba29d22;
+}
+
+.post-btn-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+}
+
+.post-btn i {
+    font-size: 1.3em;
+} 
+
+.nav-links a,
+.sidebar-section h3,
+.sidebar-section h4,
+.profile-username,
+.site-name {
+    color: #457b9d;
 } 
