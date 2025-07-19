@@ -78,6 +78,9 @@
         </aside>
         <main class="dashboard-content">
             <section class="post-form-card glass">
+                <div class="current-user-display">
+                    <h3>Welcome, <span id="current-username">User</span>! 🍉</h3>
+                </div>
                 <form action="/post" method="POST" class="mt-4 post-form-flex">
                     <textarea name="text" rows="3" placeholder="What's on your mind?" required></textarea>
                     <button type="submit" class="mt-2 post-btn">
@@ -98,13 +101,64 @@
         &copy; 2025 bateekh
     </footer>
     <script>
+    let currentUsername = '';
+    
+    function loadCurrentUser() {
+        fetch('/current_user')
+            .then(res => res.json())
+            .then(data => {
+                currentUsername = data.username;
+                document.getElementById('current-username').textContent = currentUsername;
+            })
+            .catch(err => {
+                console.error('Error loading current user:', err);
+            });
+    }
+    
     function loadTimeline() {
         fetch('/timeline')
             .then(res => res.text())
             .then(html => {
                 document.getElementById('timeline').innerHTML = html;
+                // Re-attach like event listeners after loading timeline
+                attachLikeEventListeners();
             });
     }
+    
+    function attachLikeEventListeners() {
+        // Add event listeners for like buttons
+        document.querySelectorAll('.like-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const postId = this.dataset.postId;
+                const isLiked = this.classList.contains('liked');
+                
+                fetch(isLiked ? '/unlike_post' : '/like_post', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                    body: 'post_id=' + encodeURIComponent(postId)
+                })
+                .then(res => res.json())
+                .then(data => {
+                    // Update the button appearance
+                    if (data.liked) {
+                        this.classList.add('liked');
+                    } else {
+                        this.classList.remove('liked');
+                    }
+                    
+                    // Update the like count
+                    const likeCount = this.querySelector('.like-count');
+                    if (likeCount) {
+                        likeCount.textContent = data.like_count;
+                    }
+                })
+                .catch(err => {
+                    console.error('Error liking/unliking post:', err);
+                });
+            });
+        });
+    }
+    
     function loadFriends() {
         fetch('/friends').then(res => res.text()).then(html => {
             document.getElementById('friend-list').innerHTML = html;
@@ -119,6 +173,9 @@
             document.getElementById('friend-suggestions').innerHTML = html;
         });
     }
+    
+    // Load current user and initial data
+    loadCurrentUser();
     loadTimeline();
     loadFriends();
     // Reload timeline after posting

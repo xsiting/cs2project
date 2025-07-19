@@ -131,6 +131,74 @@ form[action="/post"] textarea:focus {
     box-shadow: 0 2px 16px #0ba29d33;
 }
 
+/* Current user display */
+.current-user-display {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.current-user-display h3 {
+    color: #0ba29d;
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 600;
+    text-shadow: 0 2px 8px #c3ec52aa;
+}
+
+/* Post actions and like button */
+.post-actions {
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.like-btn {
+    background: rgba(255,255,255,0.8);
+    border: 1.5px solid #c3ec52;
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #666;
+}
+
+.like-btn:hover {
+    background: rgba(195, 236, 82, 0.2);
+    border-color: #0ba29d;
+    transform: translateY(-1px);
+}
+
+.like-btn.liked {
+    background: linear-gradient(90deg, #e74c3c 60%, #c3ec52 100%);
+    border-color: #e74c3c;
+    color: white;
+    box-shadow: 0 2px 12px rgba(231, 76, 60, 0.3);
+}
+
+.like-btn.liked:hover {
+    background: linear-gradient(90deg, #c3ec52 60%, #e74c3c 100%);
+    transform: translateY(-1px) scale(1.05);
+}
+
+.like-btn i {
+    font-size: 1rem;
+    transition: transform 0.2s ease;
+}
+
+.like-btn.liked i {
+    transform: scale(1.1);
+}
+
+.like-count {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
 /* Sidebar buttons for mutual friends functionality */
 .sidebar-btn {
     background: linear-gradient(90deg, #0ba29d 60%, #c3ec52 100%);

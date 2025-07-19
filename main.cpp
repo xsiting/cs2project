@@ -237,12 +237,71 @@ int main() {
         std::ostringstream html;
         for (const auto& post : timeline) {
             html << "<div class='post'><h2>" << post.author << "</h2><p>" << post.text << "</p><d>" << post.timestamp << "</d>";
+            
+            // Add like button and count
+            bool isLiked = post.isLikedBy(username);
+            html << "<div class='post-actions'>";
+            html << "<button class='like-btn " << (isLiked ? "liked" : "") << "' data-post-id='" << post.id << "'>";
+            html << "<i class='fa-solid fa-heart'></i> <span class='like-count'>" << post.getLikeCount() << "</span>";
+            html << "</button>";
+            html << "</div>";
+            
             if (post.author == username) {
                 html << "<form method='POST' action='/delete_post' style='display:inline;float:right;margin-left:8px;'><input type='hidden' name='id' value='" << post.id << "'><button type='submit' style='background:#e74c3c;color:white;border:none;border-radius:4px;padding:2px 8px;'>Delete</button></form>";
             }
             html << "</div>";
         }
         return crow::response(html.str());
+    });
+
+    CROW_ROUTE(app, "/like_post").methods("POST"_method)([](const crow::request& req) {
+        std::cerr << "[DEBUG] /like_post POST called\n";
+        std::string username = getUsernameFromSession(req);
+        if (username.empty()) return crow::response(401, "Not logged in");
+        
+        auto pos = req.body.find("post_id=");
+        if (pos == std::string::npos) return crow::response(400, "Missing post_id");
+        std::string postId = req.body.substr(pos + 8);
+        
+        auto posts = loadPostsFromFile();
+        auto it = std::find_if(posts.begin(), posts.end(), [&](const Post& p) { return p.id == postId; });
+        
+        if (it != posts.end()) {
+            it->addLike(username);
+            savePostsToFile(posts);
+            
+            json response;
+            response["liked"] = true;
+            response["like_count"] = it->getLikeCount();
+            return crow::response(response.dump());
+        }
+        
+        return crow::response(404, "Post not found");
+    });
+
+    CROW_ROUTE(app, "/unlike_post").methods("POST"_method)([](const crow::request& req) {
+        std::cerr << "[DEBUG] /unlike_post POST called\n";
+        std::string username = getUsernameFromSession(req);
+        if (username.empty()) return crow::response(401, "Not logged in");
+        
+        auto pos = req.body.find("post_id=");
+        if (pos == std::string::npos) return crow::response(400, "Missing post_id");
+        std::string postId = req.body.substr(pos + 8);
+        
+        auto posts = loadPostsFromFile();
+        auto it = std::find_if(posts.begin(), posts.end(), [&](const Post& p) { return p.id == postId; });
+        
+        if (it != posts.end()) {
+            it->removeLike(username);
+            savePostsToFile(posts);
+            
+            json response;
+            response["liked"] = false;
+            response["like_count"] = it->getLikeCount();
+            return crow::response(response.dump());
+        }
+        
+        return crow::response(404, "Post not found");
     });
 
     CROW_ROUTE(app, "/delete_post").methods("POST"_method)([](const crow::request& req) {
@@ -507,6 +566,16 @@ int main() {
         res.add_header("Set-Cookie", "session=; Path=/; HttpOnly; Max-Age=0");
         res.add_header("Location", "/login");
         return res;
+    });
+
+    CROW_ROUTE(app, "/current_user").methods("GET"_method)([](const crow::request& req) {
+        std::cerr << "[DEBUG] /current_user GET called\n";
+        std::string username = getUsernameFromSession(req);
+        if (username.empty()) return crow::response(401, "Not logged in");
+        
+        json response;
+        response["username"] = username;
+        return crow::response(response.dump());
     });
 
     app.bindaddr("0.0.0.0").port(18080).multithreaded().run();
