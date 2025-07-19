@@ -1,4 +1,19 @@
 {
+    "Abood": {
+        "friends": [
+            "Ahmed_Hussein",
+            "Osama"
+        ],
+        "passwordHash": "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
+        "username": "Abood"
+    },
+    "Ahmed_Hussein": {
+        "friends": [
+            "Abood"
+        ],
+        "passwordHash": "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
+        "username": "Ahmed_Hussein"
+    },
     "Anas1": {
         "friends": [
             "anas"
@@ -40,6 +55,13 @@
         ],
         "passwordHash": "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
         "username": "Martin"
+    },
+    "Osama": {
+        "friends": [
+            "Abood"
+        ],
+        "passwordHash": "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
+        "username": "Osama"
     },
     "anas": {
         "friends": [
