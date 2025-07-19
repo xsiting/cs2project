@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 #include <memory>
-
+#include <queue>
 
 using namespace std;
 using json = nlohmann::json;
@@ -24,6 +24,7 @@ private:
     std::shared_ptr<AVLTreeNode> remove(std::shared_ptr<AVLTreeNode> node, const std::string& username);
     bool contains(std::shared_ptr<AVLTreeNode> node, const std::string& username) const;
     void inOrder(std::shared_ptr<AVLTreeNode> node, std::vector<std::string>& result) const;
+    void levelOrder(std::shared_ptr<AVLTreeNode> node, std::vector<std::string>& result) const;
     int getHeight(std::shared_ptr<AVLTreeNode> node) const;
     int getBalance(std::shared_ptr<AVLTreeNode> node) const;
     std::shared_ptr<AVLTreeNode> rotateRight(std::shared_ptr<AVLTreeNode> y);
@@ -34,6 +35,9 @@ public:
     void remove(const std::string& username);
     bool contains(const std::string& username) const;
     std::vector<std::string> inOrder() const;
+    std::vector<std::string> levelOrder() const;
+    int size() const;
+    bool isEmpty() const;
 };
 
 class User

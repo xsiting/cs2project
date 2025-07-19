@@ -386,5 +386,128 @@ int main() {
         return crow::response(200);
     });
 
+    // New endpoints for mutual friends functionality
+    CROW_ROUTE(app, "/mutual_friends/<string>").methods("GET"_method)([](const crow::request& req, std::string otherUser) {
+        std::cerr << "[DEBUG] /mutual_friends GET called for user: " << otherUser << std::endl;
+        std::string username = getUsernameFromSession(req);
+        if (username.empty()) return crow::response(401, "Not logged in");
+        
+        auto users = loadUsersFromFile();
+        auto currentUser = std::find_if(users.begin(), users.end(), [&](const User& u) { return u.getUsername() == username; });
+        auto targetUser = std::find_if(users.begin(), users.end(), [&](const User& u) { return u.getUsername() == otherUser; });
+        
+        if (currentUser == users.end() || targetUser == users.end()) {
+            return crow::response(404, "User not found");
+        }
+        
+        auto mutualFriends = getMutualFriendsEfficient(*currentUser, *targetUser);
+        
+        json response;
+        response["mutual_friends"] = mutualFriends;
+        response["count"] = mutualFriends.size();
+        response["user1"] = username;
+        response["user2"] = otherUser;
+        
+        return crow::response(response.dump());
+    });
+
+    CROW_ROUTE(app, "/friend_suggestions_enhanced").methods("GET"_method)([](const crow::request& req) {
+        std::cerr << "[DEBUG] /friend_suggestions_enhanced GET called\n";
+        std::string username = getUsernameFromSession(req);
+        if (username.empty()) return crow::response(401, "Not logged in");
+        
+        auto users = loadUsersFromFile();
+        auto currentUser = std::find_if(users.begin(), users.end(), [&](const User& u) { return u.getUsername() == username; });
+        
+        if (currentUser == users.end()) {
+            return crow::response(404, "User not found");
+        }
+        
+        auto suggestions = getFriendSuggestionsWithScores(*currentUser, users);
+        
+        json response;
+        json suggestionsArray = json::array();
+        for (const auto& suggestion : suggestions) {
+            json suggestionObj;
+            suggestionObj["username"] = suggestion.first;
+            suggestionObj["score"] = suggestion.second;
+            suggestionsArray.push_back(suggestionObj);
+        }
+        response["suggestions"] = suggestionsArray;
+        
+        return crow::response(response.dump());
+    });
+
+    CROW_ROUTE(app, "/second_degree_connections").methods("GET"_method)([](const crow::request& req) {
+        std::cerr << "[DEBUG] /second_degree_connections GET called\n";
+        std::string username = getUsernameFromSession(req);
+        if (username.empty()) return crow::response(401, "Not logged in");
+        
+        auto users = loadUsersFromFile();
+        auto currentUser = std::find_if(users.begin(), users.end(), [&](const User& u) { return u.getUsername() == username; });
+        
+        if (currentUser == users.end()) {
+            return crow::response(404, "User not found");
+        }
+        
+        auto secondDegree = getSecondDegreeConnections(*currentUser, users);
+        
+        json response;
+        response["second_degree_connections"] = secondDegree;
+        response["count"] = secondDegree.size();
+        
+        return crow::response(response.dump());
+    });
+
+    CROW_ROUTE(app, "/friends_analysis").methods("GET"_method)([](const crow::request& req) {
+        std::cerr << "[DEBUG] /friends_analysis GET called\n";
+        std::string username = getUsernameFromSession(req);
+        if (username.empty()) return crow::response(401, "Not logged in");
+        
+        auto users = loadUsersFromFile();
+        auto currentUser = std::find_if(users.begin(), users.end(), [&](const User& u) { return u.getUsername() == username; });
+        
+        if (currentUser == users.end()) {
+            return crow::response(404, "User not found");
+        }
+        
+        auto friends = currentUser->getFriends();
+        auto secondDegree = getSecondDegreeConnections(*currentUser, users);
+        auto suggestions = getFriendSuggestionsWithScores(*currentUser, users);
+        
+        json response;
+        response["total_friends"] = friends.size();
+        response["second_degree_connections"] = secondDegree.size();
+        response["friend_suggestions"] = suggestions.size();
+        
+        // Get top 5 suggestions with scores
+        json topSuggestions = json::array();
+        for (int i = 0; i < std::min(5, static_cast<int>(suggestions.size())); ++i) {
+            json suggestion;
+            suggestion["username"] = suggestions[i].first;
+            suggestion["score"] = suggestions[i].second;
+            topSuggestions.push_back(suggestion);
+        }
+        response["top_suggestions"] = topSuggestions;
+        
+        return crow::response(response.dump());
+    });
+
+    CROW_ROUTE(app, "/logout").methods("GET"_method)([](const crow::request& req) {
+        std::cerr << "[DEBUG] /logout GET called\n";
+        auto cookie = req.get_header_value("Cookie");
+        auto pos = cookie.find("session=");
+        if (pos != std::string::npos) {
+            auto end = cookie.find(';', pos);
+            std::string token = cookie.substr(pos + 8, end == std::string::npos ? std::string::npos : end - (pos + 8));
+            sessionMap.erase(token);
+        }
+        
+        crow::response res(303);
+        res.add_header("Set-Cookie", "session=; Path=/; HttpOnly; Max-Age=0");
+        res.add_header("Location", "/login");
+        return res;
+    });
+
     app.bindaddr("0.0.0.0").port(18080).multithreaded().run();
 }

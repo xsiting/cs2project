@@ -32,6 +32,11 @@ void rejectFriendRequest(const std::string& from, const std::string& to);
 void cancelFriendRequest(const std::string& from, const std::string& to);
 std::vector<std::string> getPendingRequestsForUser(const std::string& username);
 std::vector<std::string> getSentRequestsByUser(const std::string& username);
-// Mutual friends and suggestions
+
+// Enhanced mutual friends and suggestions using AVL tree operations
 std::vector<std::string> getMutualFriends(const User& a, const User& b);
+std::vector<std::string> getMutualFriendsEfficient(const User& a, const User& b);
 std::vector<std::string> suggestFriends(const User& user, const std::vector<User>& allUsers);
+std::vector<std::string> suggestFriendsByMutualCount(const User& user, const std::vector<User>& allUsers);
+std::vector<std::string> getSecondDegreeConnections(const User& user, const std::vector<User>& allUsers);
+std::vector<std::pair<std::string, int>> getFriendSuggestionsWithScores(const User& user, const std::vector<User>& allUsers);

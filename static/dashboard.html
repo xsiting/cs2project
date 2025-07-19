@@ -53,6 +53,28 @@
                 <h4><i class="fa-solid fa-lightbulb"></i> Friend Suggestions</h4>
                 <div id="friend-suggestions" class="sidebar-list"></div>
             </div>
+            <div class="sidebar-section glass">
+                <h4><i class="fa-solid fa-users"></i> Mutual Friends Calculator</h4>
+                <form id="mutual-friends-form" class="sidebar-form">
+                    <input type="text" id="other-username" placeholder="Enter username" required>
+                    <button type="submit"><i class="fa-solid fa-calculator"></i> Calculate</button>
+                </form>
+                <div id="mutual-friends-result" class="sidebar-list"></div>
+            </div>
+            <div class="sidebar-section glass">
+                <h4><i class="fa-solid fa-chart-line"></i> Friends Analysis</h4>
+                <button id="analyze-friends-btn" class="sidebar-btn">
+                    <i class="fa-solid fa-analytics"></i> Analyze Network
+                </button>
+                <div id="friends-analysis-result" class="sidebar-list"></div>
+            </div>
+            <div class="sidebar-section glass">
+                <h4><i class="fa-solid fa-network-wired"></i> Second Degree</h4>
+                <button id="second-degree-btn" class="sidebar-btn">
+                    <i class="fa-solid fa-sitemap"></i> Show Connections
+                </button>
+                <div id="second-degree-result" class="sidebar-list"></div>
+            </div>
         </aside>
         <main class="dashboard-content">
             <section class="post-form-card glass">
@@ -148,6 +170,87 @@
                 body: 'to=' + encodeURIComponent(e.target.dataset.to)
             }).then(() => loadFriends());
         }
+    });
+
+    // Mutual friends calculator
+    document.getElementById('mutual-friends-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const otherUser = document.getElementById('other-username').value;
+        fetch('/mutual_friends/' + encodeURIComponent(otherUser))
+            .then(res => res.json())
+            .then(data => {
+                let html = '<div class="mutual-friends-result">';
+                html += '<h5>Mutual Friends with ' + data.user2 + '</h5>';
+                html += '<p><strong>Count:</strong> ' + data.count + '</p>';
+                if (data.mutual_friends.length > 0) {
+                    html += '<ul>';
+                    data.mutual_friends.forEach(friend => {
+                        html += '<li>' + friend + '</li>';
+                    });
+                    html += '</ul>';
+                } else {
+                    html += '<p>No mutual friends found.</p>';
+                }
+                html += '</div>';
+                document.getElementById('mutual-friends-result').innerHTML = html;
+            })
+            .catch(err => {
+                document.getElementById('mutual-friends-result').innerHTML = 
+                    '<div class="error">Error: ' + err.message + '</div>';
+            });
+    });
+
+    // Friends analysis
+    document.getElementById('analyze-friends-btn').addEventListener('click', function() {
+        fetch('/friends_analysis')
+            .then(res => res.json())
+            .then(data => {
+                let html = '<div class="friends-analysis-result">';
+                html += '<h5>Network Analysis</h5>';
+                html += '<p><strong>Total Friends:</strong> ' + data.total_friends + '</p>';
+                html += '<p><strong>Second Degree:</strong> ' + data.second_degree_connections + '</p>';
+                html += '<p><strong>Suggestions:</strong> ' + data.friend_suggestions + '</p>';
+                
+                if (data.top_suggestions.length > 0) {
+                    html += '<h6>Top Suggestions:</h6><ul>';
+                    data.top_suggestions.forEach(suggestion => {
+                        html += '<li>' + suggestion.username + ' (Score: ' + suggestion.score + ')</li>';
+                    });
+                    html += '</ul>';
+                }
+                html += '</div>';
+                document.getElementById('friends-analysis-result').innerHTML = html;
+            })
+            .catch(err => {
+                document.getElementById('friends-analysis-result').innerHTML = 
+                    '<div class="error">Error: ' + err.message + '</div>';
+            });
+    });
+
+    // Second degree connections
+    document.getElementById('second-degree-btn').addEventListener('click', function() {
+        fetch('/second_degree_connections')
+            .then(res => res.json())
+            .then(data => {
+                let html = '<div class="second-degree-result">';
+                html += '<h5>Second Degree Connections</h5>';
+                html += '<p><strong>Count:</strong> ' + data.count + '</p>';
+                if (data.second_degree_connections.length > 0) {
+                    html += '<ul>';
+                    data.second_degree_connections.forEach(connection => {
+                        html += '<li>' + connection + '</li>';
+                    });
+                    html += '</ul>';
+                } else {
+                    html += '<p>No second degree connections found.</p>';
+                }
+                html += '</div>';
+                document.getElementById('second-degree-result').innerHTML = html;
+            })
+            .catch(err => {
+                document.getElementById('second-degree-result').innerHTML = 
+                    '<div class="error">Error: ' + err.message + '</div>';
+            });
     });
     </script>
 </body>

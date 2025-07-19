@@ -173,6 +173,22 @@ std::vector<std::string> getMutualFriends(const User& a, const User& b) {
     }
     return result;
 }
+
+// Enhanced mutual friends using AVL tree operations
+std::vector<std::string> getMutualFriendsEfficient(const User& a, const User& b) {
+    auto aFriends = a.getFriends();
+    std::vector<std::string> mutualFriends;
+    
+    // Use AVL tree's efficient search for each friend of user b
+    for (const auto& friendName : aFriends) {
+        if (b.isFriend(friendName)) {
+            mutualFriends.push_back(friendName);
+        }
+    }
+    
+    return mutualFriends;
+}
+
 // Friend suggestions: users who are not friends but share the most mutual friends (no std::set or std::map)
 std::vector<std::string> suggestFriends(const User& user, const std::vector<User>& allUsers) {
     std::cerr << "[DEBUG] suggestFriends called for user: " << user.getUsername() << std::endl;
@@ -187,14 +203,14 @@ std::vector<std::string> suggestFriends(const User& user, const std::vector<User
     std::vector<std::pair<std::string, int>> suggestionCounts;
     for (const auto& other : allUsers) {
         if (other.getUsername() == user.getUsername()) continue;
-        // Check if already a friend
-        if (std::find(myFriendsVec.begin(), myFriendsVec.end(), other.getUsername()) != myFriendsVec.end()) continue;
+        // Check if already a friend using AVL tree search
+        if (user.isFriend(other.getUsername())) continue;
         std::vector<std::string> otherFriendsVec = other.getFriends();
         if (otherFriendsVec.empty()) continue;
         std::cerr << "[DEBUG] checking other user: " << other.getUsername() << ", friends size: " << otherFriendsVec.size() << " [";
         for (const auto& f : otherFriendsVec) std::cerr << f << ",";
         std::cerr << "]" << std::endl;
-        int mutual = getMutualFriends(user, other).size();
+        int mutual = getMutualFriendsEfficient(user, other).size();
         if (mutual > 0) suggestionCounts.push_back({other.getUsername(), mutual});
     }
     std::cerr << "[DEBUG] suggestionCounts size: " << suggestionCounts.size() << std::endl;
@@ -205,4 +221,73 @@ std::vector<std::string> suggestFriends(const User& user, const std::vector<User
     for (const auto& p : suggestionCounts) result.push_back(p.first);
     std::cerr << "[DEBUG] suggestFriends result size: " << result.size() << std::endl;
     return result;
+}
+
+// Enhanced friend suggestions based on mutual friend count using AVL tree operations
+std::vector<std::string> suggestFriendsByMutualCount(const User& user, const std::vector<User>& allUsers) {
+    std::vector<std::pair<std::string, int>> suggestions = getFriendSuggestionsWithScores(user, allUsers);
+    std::vector<std::string> result;
+    for (const auto& suggestion : suggestions) {
+        result.push_back(suggestion.first);
+    }
+    return result;
+}
+
+// Get second-degree connections (friends of friends) using AVL tree level-order traversal
+std::vector<std::string> getSecondDegreeConnections(const User& user, const std::vector<User>& allUsers) {
+    std::vector<std::string> secondDegree;
+    std::vector<std::string> myFriends = user.getFriends();
+    
+    // For each friend, get their friends using AVL tree operations
+    for (const auto& friendName : myFriends) {
+        auto it = std::find_if(allUsers.begin(), allUsers.end(), 
+                              [&](const User& u) { return u.getUsername() == friendName; });
+        if (it != allUsers.end()) {
+            auto friendsOfFriend = it->getFriends();
+            for (const auto& friendOfFriend : friendsOfFriend) {
+                // Don't include self or direct friends
+                if (friendOfFriend != user.getUsername() && !user.isFriend(friendOfFriend)) {
+                    // Avoid duplicates
+                    if (std::find(secondDegree.begin(), secondDegree.end(), friendOfFriend) == secondDegree.end()) {
+                        secondDegree.push_back(friendOfFriend);
+                    }
+                }
+            }
+        }
+    }
+    
+    return secondDegree;
+}
+
+// Get friend suggestions with scores using AVL tree operations
+std::vector<std::pair<std::string, int>> getFriendSuggestionsWithScores(const User& user, const std::vector<User>& allUsers) {
+    std::vector<std::pair<std::string, int>> suggestions;
+    
+    for (const auto& other : allUsers) {
+        if (other.getUsername() == user.getUsername()) continue;
+        
+        // Skip if already friends
+        if (user.isFriend(other.getUsername())) continue;
+        
+        // Calculate mutual friends count using efficient AVL operations
+        int mutualCount = getMutualFriendsEfficient(user, other).size();
+        
+        // Calculate second-degree connection bonus
+        auto secondDegree = getSecondDegreeConnections(user, allUsers);
+        bool isSecondDegree = std::find(secondDegree.begin(), secondDegree.end(), other.getUsername()) != secondDegree.end();
+        
+        // Score calculation: mutual friends + bonus for second-degree connections
+        int score = mutualCount;
+        if (isSecondDegree) score += 1; // Bonus for being a friend of a friend
+        
+        if (score > 0) {
+            suggestions.push_back({other.getUsername(), score});
+        }
+    }
+    
+    // Sort by score (descending)
+    std::sort(suggestions.begin(), suggestions.end(), 
+              [](const auto& a, const auto& b) { return a.second > b.second; });
+    
+    return suggestions;
 }

@@ -176,3 +176,40 @@ std::vector<std::string> AVLTree::inOrder() const {
     }
     return result;
 }
+
+void AVLTree::levelOrder(std::shared_ptr<AVLTreeNode> node, std::vector<std::string>& result) const {
+    if (!node) return;
+    
+    std::queue<std::shared_ptr<AVLTreeNode>> q;
+    q.push(node);
+    
+    while (!q.empty()) {
+        auto current = q.front();
+        q.pop();
+        
+        result.push_back(current->username);
+        
+        if (current->left) q.push(current->left);
+        if (current->right) q.push(current->right);
+    }
+}
+
+std::vector<std::string> AVLTree::levelOrder() const {
+    std::vector<std::string> result;
+    try {
+        levelOrder(root, result);
+    } catch (...) {
+        // Defensive: if anything goes wrong, return empty vector
+        result.clear();
+    }
+    return result;
+}
+
+int AVLTree::size() const {
+    auto friends = inOrder();
+    return static_cast<int>(friends.size());
+}
+
+bool AVLTree::isEmpty() const {
+    return root == nullptr;
+}
