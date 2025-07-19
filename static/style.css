@@ -199,6 +199,62 @@ form[action="/post"] textarea:focus {
     font-size: 0.9rem;
 }
 
+/* Friend suggestions styling */
+.suggestion-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    margin: 4px 0;
+    background: rgba(255,255,255,0.6);
+    border-radius: 8px;
+    border: 1px solid rgba(12,162,157,0.1);
+    transition: all 0.2s ease;
+}
+
+.suggestion-item:hover {
+    background: rgba(255,255,255,0.8);
+    border-color: rgba(12,162,157,0.2);
+}
+
+.suggestion-username {
+    font-weight: 600;
+    color: #0ba29d;
+    font-size: 0.95rem;
+}
+
+.send-request-btn {
+    background: linear-gradient(90deg, #0ba29d 60%, #c3ec52 100%);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.send-request-btn:hover {
+    background: linear-gradient(90deg, #c3ec52 60%, #0ba29d 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(12,162,157,0.3);
+}
+
+.send-request-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.send-request-btn i {
+    font-size: 0.75rem;
+}
+
 /* Sidebar buttons for mutual friends functionality */
 .sidebar-btn {
     background: linear-gradient(90deg, #0ba29d 60%, #c3ec52 100%);

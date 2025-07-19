@@ -381,7 +381,12 @@ int main() {
             if (it != users.end()) {
                 auto suggestions = suggestFriends(*it, users);
                 for (const auto& s : suggestions) {
-                    html << "<div>" << s << "</div>";
+                    html << "<div class='suggestion-item'>";
+                    html << "<span class='suggestion-username'>" << s << "</span>";
+                    html << "<button class='send-request-btn' data-username='" << s << "'>";
+                    html << "<i class='fa-solid fa-user-plus'></i> Send Request";
+                    html << "</button>";
+                    html << "</div>";
                 }
             }
             return crow::response(html.str());

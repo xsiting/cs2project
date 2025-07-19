@@ -229,6 +229,44 @@
         }
     });
 
+    // Send friend request from suggestions
+    document.getElementById('friend-suggestions').addEventListener('click', function(e) {
+        if (e.target.classList.contains('send-request-btn') || e.target.closest('.send-request-btn')) {
+            const btn = e.target.classList.contains('send-request-btn') ? e.target : e.target.closest('.send-request-btn');
+            const username = btn.dataset.username;
+            
+            // Disable the button to prevent multiple clicks
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-clock"></i> Sending...';
+            
+            fetch('/send_friend_request', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: 'to=' + encodeURIComponent(username)
+            }).then(() => {
+                // Update button to show sent status
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> Sent!';
+                btn.style.background = '#4CAF50';
+                
+                // Reload friends to update pending/sent requests
+                loadFriends();
+                
+                // Reset button after 3 seconds
+                setTimeout(() => {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fa-solid fa-user-plus"></i> Send Request';
+                    btn.style.background = '';
+                }, 3000);
+            }).catch(err => {
+                console.error('Error sending friend request:', err);
+                // Reset button on error
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-user-plus"></i> Send Request';
+                btn.style.background = '';
+            });
+        }
+    });
+
     // Mutual friends calculator
     document.getElementById('mutual-friends-form').addEventListener('submit', function(e) {
         e.preventDefault();
