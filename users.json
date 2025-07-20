@@ -9,7 +9,8 @@
     },
     "Ahmed_Hussein": {
         "friends": [
-            "Abood"
+            "Abood",
+            "Osama"
         ],
         "passwordHash": "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
         "username": "Ahmed_Hussein"
@@ -56,9 +57,15 @@
         "passwordHash": "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
         "username": "Martin"
     },
+    "Martin04": {
+        "friends": [],
+        "passwordHash": "495595a5f7464e4242338cd1a801b1f5cde87bc2e87a956a890b4962e6ee4b78",
+        "username": "Martin04"
+    },
     "Osama": {
         "friends": [
-            "Abood"
+            "Abood",
+            "Ahmed_Hussein"
         ],
         "passwordHash": "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
         "username": "Osama"
