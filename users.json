@@ -1,25 +1,98 @@
 {
+    "Abood": {
+        "friends": [
+            "Ahmed_Hussein",
+            "Osama"
+        ],
+        "passwordHash": "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
+        "username": "Abood"
+    },
+    "Ahmed_Hussein": {
+        "friends": [
+            "Abood",
+            "Osama"
+        ],
+        "passwordHash": "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
+        "username": "Ahmed_Hussein"
+    },
+    "Anas1": {
+        "friends": [
+            "anas"
+        ],
+        "passwordHash": "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
+        "username": "Anas1"
+    },
     "Ebram": {
+        "friends": [
+            "anas",
+            "anas11"
+        ],
         "passwordHash": "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
         "username": "Ebram"
     },
     "Ebram1": {
+        "friends": [],
         "passwordHash": "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
         "username": "Ebram1"
     },
     "Ibrahim": {
+        "friends": [],
         "passwordHash": "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
         "username": "Ibrahim"
     },
+    "Ibrahim04": {
+        "friends": [],
+        "passwordHash": "9d2908de20446d6d19c1ec2107253ab139054a7bfec61d8257f8e52c7241ab24",
+        "username": "Ibrahim04"
+    },
     "Joe2005": {
+        "friends": [],
         "passwordHash": "9552e277ebcc7fa191292c6e900d94dfe6e837d8abf76a2da927d4530d2c8f69",
         "username": "Joe2005"
     },
     "Martin": {
+        "friends": [
+            "anas"
+        ],
         "passwordHash": "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
         "username": "Martin"
     },
+    "Martin04": {
+        "friends": [],
+        "passwordHash": "495595a5f7464e4242338cd1a801b1f5cde87bc2e87a956a890b4962e6ee4b78",
+        "username": "Martin04"
+    },
+    "Osama": {
+        "friends": [
+            "Abood",
+            "Ahmed_Hussein"
+        ],
+        "passwordHash": "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
+        "username": "Osama"
+    },
+    "anas": {
+        "friends": [
+            "Anas1",
+            "Ebram",
+            "Martin"
+        ],
+        "passwordHash": "1df38cbe202365fc6f2265391ef6aad4e52c7c09ce837bd191e4081b8749e341",
+        "username": "anas"
+    },
+    "anas11": {
+        "friends": [
+            "ebram"
+        ],
+        "passwordHash": "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
+        "username": "anas11"
+    },
+    "anas2": {
+        "friends": [],
+        "passwordHash": "733494b792ac6fc2b23a85a6868e6788bf4343fec9cb029c0f05816e10ce1807",
+        "username": "anas2"
+    },
     "fdaf": {
+        "friends": [],
         "passwordHash": "5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5",
         "username": "fdaf"
     }

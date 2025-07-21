@@ -1,4 +1,7 @@
 #include "utility.h"
+#include <queue>
+#include <nlohmann/json.hpp>
+using json = nlohmann::json;
 
 vector<User> loadUsersFromFile(const string& filename) {
     vector<User> users;
@@ -46,4 +49,245 @@ User* findUserByUsername(vector<User>& users, const string& username) {
             return &user;
     }
     return nullptr;
+}
+
+std::vector<std::string> getFriendUsernames(const User& user) {
+    return user.getFriends();
+}
+
+std::vector<Post> getTimelinePosts(const std::string& username, const std::vector<User>& users, const std::vector<Post>& allPosts) {
+    // Find user
+    auto it = std::find_if(users.begin(), users.end(), [&](const User& u) { return u.getUsername() == username; });
+    std::vector<std::string> friendNames;
+    if (it != users.end()) {
+        friendNames = it->getFriends();
+    }
+    friendNames.push_back(username); // include self
+    // Use a vector to collect posts
+    std::vector<Post> timeline;
+    for (const auto& post : allPosts) {
+        if (std::find(friendNames.begin(), friendNames.end(), post.author) != friendNames.end()) {
+            timeline.push_back(post);
+        }
+    }
+    // Sort by timestamp descending
+    std::sort(timeline.begin(), timeline.end(), [](const Post& a, const Post& b) {
+        return a.timestamp > b.timestamp;
+    });
+    return timeline;
+}
+
+// Friend request management
+std::vector<FriendRequest> loadFriendRequests(const std::string& filename) {
+    std::vector<FriendRequest> requests;
+    std::ifstream in(filename);
+    if (!in.is_open()) return requests;
+    json j;
+    in >> j;
+    for (const auto& item : j) {
+        requests.push_back({item["from"], item["to"], item["status"]});
+    }
+    return requests;
+}
+void saveFriendRequests(const std::vector<FriendRequest>& requests, const std::string& filename) {
+    json j = json::array();
+    for (const auto& req : requests) {
+        j.push_back({{"from", req.from}, {"to", req.to}, {"status", req.status}});
+    }
+    std::ofstream out(filename);
+    out << std::setw(2) << j;
+}
+void sendFriendRequest(const std::string& from, const std::string& to) {
+    auto requests = loadFriendRequests();
+    for (const auto& req : requests) {
+        if (req.from == from && req.to == to && req.status == "pending") return; // already sent
+    }
+    requests.push_back({from, to, "pending"});
+    saveFriendRequests(requests);
+}
+void acceptFriendRequest(const std::string& from, const std::string& to) {
+    auto requests = loadFriendRequests();
+    for (auto& req : requests) {
+        if (req.from == from && req.to == to && req.status == "pending") {
+            req.status = "accepted";
+            break;
+        }
+    }
+    saveFriendRequests(requests);
+    // Add each other as friends
+    auto users = loadUsersFromFile();
+    auto itFrom = std::find_if(users.begin(), users.end(), [&](const User& u){return u.getUsername() == from;});
+    auto itTo = std::find_if(users.begin(), users.end(), [&](const User& u){return u.getUsername() == to;});
+    if (itFrom != users.end() && itTo != users.end()) {
+        itFrom->addFriend(to);
+        itTo->addFriend(from);
+        saveUsersToFile(users);
+    }
+}
+void rejectFriendRequest(const std::string& from, const std::string& to) {
+    auto requests = loadFriendRequests();
+    for (auto& req : requests) {
+        if (req.from == from && req.to == to && req.status == "pending") {
+            req.status = "rejected";
+            break;
+        }
+    }
+    saveFriendRequests(requests);
+}
+void cancelFriendRequest(const std::string& from, const std::string& to) {
+    auto requests = loadFriendRequests();
+    std::cerr << "[DEBUG] Before remove_if in cancelFriendRequest, size: " << requests.size() << std::endl;
+    auto it = std::remove_if(requests.begin(), requests.end(), [&](const FriendRequest& req){
+        return req.from == from && req.to == to && req.status == "pending";
+    });
+    std::cerr << "[DEBUG] After remove_if, it - begin: " << (it - requests.begin()) << ", end - begin: " << (requests.end() - requests.begin()) << std::endl;
+    requests.erase(it, requests.end());
+    std::cerr << "[DEBUG] After erase, size: " << requests.size() << std::endl;
+    saveFriendRequests(requests);
+}
+std::vector<std::string> getPendingRequestsForUser(const std::string& username) {
+    auto requests = loadFriendRequests();
+    std::vector<std::string> result;
+    for (const auto& req : requests) {
+        if (req.to == username && req.status == "pending") result.push_back(req.from);
+    }
+    return result;
+}
+std::vector<std::string> getSentRequestsByUser(const std::string& username) {
+    auto requests = loadFriendRequests();
+    std::vector<std::string> result;
+    for (const auto& req : requests) {
+        if (req.from == username && req.status == "pending") result.push_back(req.to);
+    }
+    return result;
+}
+// Mutual friends (no std::set)
+std::vector<std::string> getMutualFriends(const User& a, const User& b) {
+    auto aFriends = a.getFriends();
+    auto bFriends = b.getFriends();
+    std::vector<std::string> result;
+    for (const auto& f : bFriends) {
+        if (std::find(aFriends.begin(), aFriends.end(), f) != aFriends.end()) {
+            result.push_back(f);
+        }
+    }
+    return result;
+}
+
+// Enhanced mutual friends using AVL tree operations
+std::vector<std::string> getMutualFriendsEfficient(const User& a, const User& b) {
+    auto aFriends = a.getFriends();
+    std::vector<std::string> mutualFriends;
+    
+    // Use AVL tree's efficient search for each friend of user b
+    for (const auto& friendName : aFriends) {
+        if (b.isFriend(friendName)) {
+            mutualFriends.push_back(friendName);
+        }
+    }
+    
+    return mutualFriends;
+}
+
+// Friend suggestions: users who are not friends but share the most mutual friends (no std::set or std::map)
+std::vector<std::string> suggestFriends(const User& user, const std::vector<User>& allUsers) {
+    std::cerr << "[DEBUG] suggestFriends called for user: " << user.getUsername() << std::endl;
+    std::vector<std::string> myFriendsVec = user.getFriends();
+    if (myFriendsVec.empty()) {
+        std::cerr << "[DEBUG] myFriendsVec is empty, skipping suggestions.\n";
+        return {};
+    }
+    std::cerr << "[DEBUG] myFriends size: " << myFriendsVec.size() << " [";
+    for (const auto& f : myFriendsVec) std::cerr << f << ",";
+    std::cerr << "]" << std::endl;
+    std::vector<std::pair<std::string, int>> suggestionCounts;
+    for (const auto& other : allUsers) {
+        if (other.getUsername() == user.getUsername()) continue;
+        // Check if already a friend using AVL tree search
+        if (user.isFriend(other.getUsername())) continue;
+        std::vector<std::string> otherFriendsVec = other.getFriends();
+        if (otherFriendsVec.empty()) continue;
+        std::cerr << "[DEBUG] checking other user: " << other.getUsername() << ", friends size: " << otherFriendsVec.size() << " [";
+        for (const auto& f : otherFriendsVec) std::cerr << f << ",";
+        std::cerr << "]" << std::endl;
+        int mutual = getMutualFriendsEfficient(user, other).size();
+        if (mutual > 0) suggestionCounts.push_back({other.getUsername(), mutual});
+    }
+    std::cerr << "[DEBUG] suggestionCounts size: " << suggestionCounts.size() << std::endl;
+    if (!suggestionCounts.empty()) {
+        std::sort(suggestionCounts.begin(), suggestionCounts.end(), [](const auto& a, const auto& b){return a.second > b.second;});
+    }
+    std::vector<std::string> result;
+    for (const auto& p : suggestionCounts) result.push_back(p.first);
+    std::cerr << "[DEBUG] suggestFriends result size: " << result.size() << std::endl;
+    return result;
+}
+
+// Enhanced friend suggestions based on mutual friend count using AVL tree operations
+std::vector<std::string> suggestFriendsByMutualCount(const User& user, const std::vector<User>& allUsers) {
+    std::vector<std::pair<std::string, int>> suggestions = getFriendSuggestionsWithScores(user, allUsers);
+    std::vector<std::string> result;
+    for (const auto& suggestion : suggestions) {
+        result.push_back(suggestion.first);
+    }
+    return result;
+}
+
+// Get second-degree connections (friends of friends) using AVL tree level-order traversal
+std::vector<std::string> getSecondDegreeConnections(const User& user, const std::vector<User>& allUsers) {
+    std::vector<std::string> secondDegree;
+    std::vector<std::string> myFriends = user.getFriends();
+    
+    // For each friend, get their friends using AVL tree operations
+    for (const auto& friendName : myFriends) {
+        auto it = std::find_if(allUsers.begin(), allUsers.end(), 
+                              [&](const User& u) { return u.getUsername() == friendName; });
+        if (it != allUsers.end()) {
+            auto friendsOfFriend = it->getFriends();
+            for (const auto& friendOfFriend : friendsOfFriend) {
+                // Don't include self or direct friends
+                if (friendOfFriend != user.getUsername() && !user.isFriend(friendOfFriend)) {
+                    // Avoid duplicates
+                    if (std::find(secondDegree.begin(), secondDegree.end(), friendOfFriend) == secondDegree.end()) {
+                        secondDegree.push_back(friendOfFriend);
+                    }
+                }
+            }
+        }
+    }
+    
+    return secondDegree;
+}
+
+// Get friend suggestions with scores using AVL tree operations
+std::vector<std::pair<std::string, int>> getFriendSuggestionsWithScores(const User& user, const std::vector<User>& allUsers) {
+    std::vector<std::pair<std::string, int>> suggestions;
+    
+    for (const auto& other : allUsers) {
+        if (other.getUsername() == user.getUsername()) continue;
+        
+        // Skip if already friends
+        if (user.isFriend(other.getUsername())) continue;
+        
+        // Calculate mutual friends count using efficient AVL operations
+        int mutualCount = getMutualFriendsEfficient(user, other).size();
+        
+        // Calculate second-degree connection bonus
+        auto secondDegree = getSecondDegreeConnections(user, allUsers);
+        bool isSecondDegree = std::find(secondDegree.begin(), secondDegree.end(), other.getUsername()) != secondDegree.end();
+        
+        // Score calculation: mutual friends + bonus for second-degree connections
+        int score = mutualCount;
+        if (isSecondDegree) score += 1; // Bonus for being a friend of a friend
+        
+        if (score > 0) {
+            suggestions.push_back({other.getUsername(), score});
+        }
+    }
+    
+    // Sort by score (descending)
+    std::sort(suggestions.begin(), suggestions.end(), 
+              [](const auto& a, const auto& b) { return a.second > b.second; });
+    
+    return suggestions;
 }

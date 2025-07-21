@@ -4,107 +4,349 @@
     <meta charset="UTF-8">
     <title>bateekh Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-    <style>
-        body {
-            margin: 0;
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #c3ec52, #0ba29d);
-            color: #333;
-        }
-
-        header {
-            background-color: rgba(255, 255, 255, 0.95);
-            padding: 10px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        .logo {
-            font-size: 24px;
-            font-weight: 700;
-            color: #0ba29d;
-            display: flex;
-            align-items: center;
-        }
-
-        .logo::before {
-            content: "🍉 ";
-            font-size: 24px;
-        }
-
-        .welcome {
-            font-size: 18px;
-            font-weight: 500;
-            color: #333;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 40px auto;
-            background: rgba(255,255,255,0.95);
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-        }
-
-        .post {
-            background: #f9f9f9;
-            margin-bottom: 20px;
-            padding: 16px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .post h2 {
-            margin: 0 0 8px;
-            font-size: 18px;
-            color: #0ba29d;
-        }
-
-        .post p {
-            margin: 0;
-            font-size: 14px;
-        }
-        .post d {
-            margin: 0;
-            font-size: 14px;
-        }
-
-        footer {
-            text-align: center;
-            padding: 10px;
-            font-size: 12px;
-            color: white;
-        }
-    </style>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <header>
-        <div class="logo">bateekh</div>
-        <div class="welcome">Welcome to Bateekh</div>
-    </header>
-
-    <div class="container">
-        <div class="post">
-            <h2>Ebram</h2>
-            <p>WE NEED THE GRADES PLEAAAASE 😭😭</p>
+    <nav>
+        <div class="nav-left">
+            <div class="logo"></div>
+            <span class="site-name">bateekh</span>
         </div>
-        <div class="post">
-            <h2>Anas</h2>
-            <p>HE IS THE REAL DEAL</p>
+        <div class="nav-links">
+            <a href="/dashboard"><i class="fa-solid fa-house"></i> Dashboard</a>
+            <a href="/logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
         </div>
-        <div class="post">
-            <h2>Ibrahim</h2>
-            <p>HE DID THE UML👀👀</p>
-        </div>
-        <div class="post">
-            <h2>Martin</h2>
-            <p>HE WAS HERE TO EMOTIONALLY SUPPORT 😁</p>
-        </div>
+    </nav>
+    <div class="dashboard-main">
+        <aside class="dashboard-sidebar glass">
+            <div class="profile-card">
+                <div class="profile-avatar">
+                    <span class="avatar-icon">🍉</span>
+                </div>
+                <div class="profile-info">
+                    <div class="profile-username" id="profile-username">Welcome!</div>
+                    <div class="profile-desc">Enjoy your social feed 🍉</div>
+                </div>
+            </div>
+            <div class="sidebar-section glass">
+                <h3><i class="fa-solid fa-user-group"></i> Friends</h3>
+                <div id="friend-list" class="sidebar-list"></div>
+            </div>
+            <div class="sidebar-section glass">
+                <h4><i class="fa-solid fa-clock"></i> Pending Requests</h4>
+                <div id="pending-requests" class="sidebar-list"></div>
+            </div>
+            <div class="sidebar-section glass">
+                <h4><i class="fa-solid fa-paper-plane"></i> Sent Requests</h4>
+                <div id="sent-requests" class="sidebar-list"></div>
+            </div>
+            <div class="sidebar-section glass">
+                <h4><i class="fa-solid fa-user-plus"></i> Send Friend Request</h4>
+                <form id="send-friend-form" class="sidebar-form">
+                    <input type="text" id="friend-username" placeholder="Username" required>
+                    <button type="submit"><i class="fa-solid fa-plus"></i> Send</button>
+                </form>
+                <div id="send-friend-feedback" class="feedback" style="display:none;"></div>
+            </div>
+            <div class="sidebar-section glass">
+                <h4><i class="fa-solid fa-lightbulb"></i> Friend Suggestions</h4>
+                <div id="friend-suggestions" class="sidebar-list"></div>
+            </div>
+            <div class="sidebar-section glass">
+                <h4><i class="fa-solid fa-users"></i> Mutual Friends Calculator</h4>
+                <form id="mutual-friends-form" class="sidebar-form">
+                    <input type="text" id="other-username" placeholder="Enter username" required>
+                    <button type="submit"><i class="fa-solid fa-calculator"></i> Calculate</button>
+                </form>
+                <div id="mutual-friends-result" class="sidebar-list"></div>
+            </div>
+            <div class="sidebar-section glass">
+                <h4><i class="fa-solid fa-chart-line"></i> Friends Analysis</h4>
+                <button id="analyze-friends-btn" class="sidebar-btn">
+                    <i class="fa-solid fa-analytics"></i> Analyze Network
+                </button>
+                <div id="friends-analysis-result" class="sidebar-list"></div>
+            </div>
+            <div class="sidebar-section glass">
+                <h4><i class="fa-solid fa-network-wired"></i> Second Degree</h4>
+                <button id="second-degree-btn" class="sidebar-btn">
+                    <i class="fa-solid fa-sitemap"></i> Show Connections
+                </button>
+                <div id="second-degree-result" class="sidebar-list"></div>
+            </div>
+        </aside>
+        <main class="dashboard-content">
+            <section class="post-form-card glass">
+                <div class="current-user-display">
+                    <h3>Welcome, <span id="current-username">User</span>! 🍉</h3>
+                </div>
+                <form action="/post" method="POST" class="mt-4 post-form-flex">
+                    <textarea name="text" rows="3" placeholder="What's on your mind?" required></textarea>
+                    <button type="submit" class="mt-2 post-btn">
+                        <span class="post-btn-content"><i class="fa-solid fa-paper-plane"></i> Post</span>
+                    </button>
+                </form>
+                <div id="post-feedback" class="feedback" style="display:none;"></div>
+            </section>
+            <section class="timeline-section glass">
+                <h3><i class="fa-solid fa-stream"></i> Timeline</h3>
+                <div id="timeline">
+                    <!-- Timeline will be loaded here -->
+                </div>
+            </section>
+        </main>
     </div>
+    <footer>
+        &copy; 2025 bateekh
+    </footer>
+    <script>
+    let currentUsername = '';
+    
+    function loadCurrentUser() {
+        fetch('/current_user')
+            .then(res => res.json())
+            .then(data => {
+                currentUsername = data.username;
+                document.getElementById('current-username').textContent = currentUsername;
+            })
+            .catch(err => {
+                console.error('Error loading current user:', err);
+            });
+    }
+    
+    function loadTimeline() {
+        fetch('/timeline')
+            .then(res => res.text())
+            .then(html => {
+                document.getElementById('timeline').innerHTML = html;
+                // Re-attach like event listeners after loading timeline
+                attachLikeEventListeners();
+            });
+    }
+    
+    function attachLikeEventListeners() {
+        // Add event listeners for like buttons
+        document.querySelectorAll('.like-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const postId = this.dataset.postId;
+                const isLiked = this.classList.contains('liked');
+                
+                fetch(isLiked ? '/unlike_post' : '/like_post', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                    body: 'post_id=' + encodeURIComponent(postId)
+                })
+                .then(res => res.json())
+                .then(data => {
+                    // Update the button appearance
+                    if (data.liked) {
+                        this.classList.add('liked');
+                    } else {
+                        this.classList.remove('liked');
+                    }
+                    
+                    // Update the like count
+                    const likeCount = this.querySelector('.like-count');
+                    if (likeCount) {
+                        likeCount.textContent = data.like_count;
+                    }
+                })
+                .catch(err => {
+                    console.error('Error liking/unliking post:', err);
+                });
+            });
+        });
+    }
+    
+    function loadFriends() {
+        fetch('/friends').then(res => res.text()).then(html => {
+            document.getElementById('friend-list').innerHTML = html;
+        });
+        fetch('/pending_requests').then(res => res.text()).then(html => {
+            document.getElementById('pending-requests').innerHTML = html;
+        });
+        fetch('/sent_requests').then(res => res.text()).then(html => {
+            document.getElementById('sent-requests').innerHTML = html;
+        });
+        fetch('/friend_suggestions').then(res => res.text()).then(html => {
+            document.getElementById('friend-suggestions').innerHTML = html;
+        });
+    }
+    
+    // Load current user and initial data
+    loadCurrentUser();
+    loadTimeline();
+    loadFriends();
+    // Reload timeline after posting
+    document.querySelector('form[action="/post"]').addEventListener('submit', function(e) {
+        setTimeout(loadTimeline, 500);
+        // Show feedback
+        document.getElementById('post-feedback').style.display = 'block';
+        document.getElementById('post-feedback').textContent = 'Posted!';
+        setTimeout(() => document.getElementById('post-feedback').style.display = 'none', 1500);
+    });
+    // Send friend request
+    document.getElementById('send-friend-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const uname = document.getElementById('friend-username').value;
+        fetch('/send_friend_request', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: 'to=' + encodeURIComponent(uname)
+        }).then(() => {
+            loadFriends();
+            // Show feedback
+            document.getElementById('send-friend-feedback').style.display = 'block';
+            document.getElementById('send-friend-feedback').textContent = 'Request sent!';
+            setTimeout(() => document.getElementById('send-friend-feedback').style.display = 'none', 1500);
+        });
+    });
+    // Accept/reject friend requests (pending-requests)
+    document.getElementById('pending-requests').addEventListener('click', function(e) {
+        if (e.target.classList.contains('accept-request')) {
+            fetch('/accept_friend_request', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: 'from=' + encodeURIComponent(e.target.dataset.from)
+            }).then(() => loadFriends());
+        } else if (e.target.classList.contains('reject-request')) {
+            fetch('/reject_friend_request', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: 'from=' + encodeURIComponent(e.target.dataset.from)
+            }).then(() => loadFriends());
+        }
+    });
+    // Cancel sent requests (sent-requests)
+    document.getElementById('sent-requests').addEventListener('click', function(e) {
+        if (e.target.classList.contains('cancel-request')) {
+            fetch('/cancel_friend_request', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: 'to=' + encodeURIComponent(e.target.dataset.to)
+            }).then(() => loadFriends());
+        }
+    });
 
-    <footer>© 2025 bateekh</footer>
+    // Send friend request from suggestions
+    document.getElementById('friend-suggestions').addEventListener('click', function(e) {
+        if (e.target.classList.contains('send-request-btn') || e.target.closest('.send-request-btn')) {
+            const btn = e.target.classList.contains('send-request-btn') ? e.target : e.target.closest('.send-request-btn');
+            const username = btn.dataset.username;
+            
+            // Disable the button to prevent multiple clicks
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-clock"></i> Sending...';
+            
+            fetch('/send_friend_request', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: 'to=' + encodeURIComponent(username)
+            }).then(() => {
+                // Update button to show sent status
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> Sent!';
+                btn.style.background = '#4CAF50';
+                
+                // Reload friends to update pending/sent requests
+                loadFriends();
+                
+                // Reset button after 3 seconds
+                setTimeout(() => {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fa-solid fa-user-plus"></i> Send Request';
+                    btn.style.background = '';
+                }, 3000);
+            }).catch(err => {
+                console.error('Error sending friend request:', err);
+                // Reset button on error
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-user-plus"></i> Send Request';
+                btn.style.background = '';
+            });
+        }
+    });
+
+    // Mutual friends calculator
+    document.getElementById('mutual-friends-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const otherUser = document.getElementById('other-username').value;
+        fetch('/mutual_friends/' + encodeURIComponent(otherUser))
+            .then(res => res.json())
+            .then(data => {
+                let html = '<div class="mutual-friends-result">';
+                html += '<h5>Mutual Friends with ' + data.user2 + '</h5>';
+                html += '<p><strong>Count:</strong> ' + data.count + '</p>';
+                if (data.mutual_friends.length > 0) {
+                    html += '<ul>';
+                    data.mutual_friends.forEach(friend => {
+                        html += '<li>' + friend + '</li>';
+                    });
+                    html += '</ul>';
+                } else {
+                    html += '<p>No mutual friends found.</p>';
+                }
+                html += '</div>';
+                document.getElementById('mutual-friends-result').innerHTML = html;
+            })
+            .catch(err => {
+                document.getElementById('mutual-friends-result').innerHTML = 
+                    '<div class="error">Error: ' + err.message + '</div>';
+            });
+    });
+
+    // Friends analysis
+    document.getElementById('analyze-friends-btn').addEventListener('click', function() {
+        fetch('/friends_analysis')
+            .then(res => res.json())
+            .then(data => {
+                let html = '<div class="friends-analysis-result">';
+                html += '<h5>Network Analysis</h5>';
+                html += '<p><strong>Total Friends:</strong> ' + data.total_friends + '</p>';
+                html += '<p><strong>Second Degree:</strong> ' + data.second_degree_connections + '</p>';
+                html += '<p><strong>Suggestions:</strong> ' + data.friend_suggestions + '</p>';
+                
+                if (data.top_suggestions.length > 0) {
+                    html += '<h6>Top Suggestions:</h6><ul>';
+                    data.top_suggestions.forEach(suggestion => {
+                        html += '<li>' + suggestion.username + ' (Score: ' + suggestion.score + ')</li>';
+                    });
+                    html += '</ul>';
+                }
+                html += '</div>';
+                document.getElementById('friends-analysis-result').innerHTML = html;
+            })
+            .catch(err => {
+                document.getElementById('friends-analysis-result').innerHTML = 
+                    '<div class="error">Error: ' + err.message + '</div>';
+            });
+    });
+
+    // Second degree connections
+    document.getElementById('second-degree-btn').addEventListener('click', function() {
+        fetch('/second_degree_connections')
+            .then(res => res.json())
+            .then(data => {
+                let html = '<div class="second-degree-result">';
+                html += '<h5>Second Degree Connections</h5>';
+                html += '<p><strong>Count:</strong> ' + data.count + '</p>';
+                if (data.second_degree_connections.length > 0) {
+                    html += '<ul>';
+                    data.second_degree_connections.forEach(connection => {
+                        html += '<li>' + connection + '</li>';
+                    });
+                    html += '</ul>';
+                } else {
+                    html += '<p>No second degree connections found.</p>';
+                }
+                html += '</div>';
+                document.getElementById('second-degree-result').innerHTML = html;
+            })
+            .catch(err => {
+                document.getElementById('second-degree-result').innerHTML = 
+                    '<div class="error">Error: ' + err.message + '</div>';
+            });
+    });
+    </script>
 </body>
 </html>
