@@ -122,6 +122,33 @@ std::string urlDecode(const std::string& str) {
     return ret;
 }
 
+// Add near your other route handlers
+// Global search tree instance
+static UserSearch userSearch;
+
+// Update search index when users change
+void updateSearchIndex(const vector<User>& users) {
+    userSearch.clear();
+    for (const auto& user : users) {
+        userSearch.insert(user.getUsername());
+    }
+}
+
+// Add this with your routes
+CROW_ROUTE(app, "/api/users/search")
+([](const crow::request& req) {
+    auto query = req.url_params.get("q");
+    if (!query) return crow::response(400);
+
+    auto results = userSearch.search(query);
+    
+    json response = {
+        {"matches", results}
+    };
+    
+    return crow::response(response.dump());
+});
+
 
 int main() {
     crow::SimpleApp app;
@@ -582,6 +609,10 @@ int main() {
         response["username"] = username;
         return crow::response(response.dump());
     });
+
+    // Update your user loading code to also update the search index
+    auto users = loadUsersFromFile();
+    updateSearchIndex(users);
 
     app.bindaddr("0.0.0.0").port(18080).multithreaded().run();
 }

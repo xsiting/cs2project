@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Search</title>
+    <link href="style.css" rel="stylesheet">
+    <style>
+        .search-container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+
+        .search-box {
+            position: relative;
+            width: 100%;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 40px 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: var(--card-bg);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--subtext-color);
+        }
+
+        .results-container {
+            margin-top: 10px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .result-item {
+            padding: 12px 15px;
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-item:hover {
+            background: var(--hover-bg);
+        }
+
+        .result-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .result-info {
+            flex: 1;
+        }
+
+        .result-username {
+            color: var(--text-color);
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+
+        .no-results {
+            padding: 20px;
+            text-align: center;
+            color: var(--subtext-color);
+            background: var(--card-bg);
+        }
+
+        .loading {
+            padding: 20px;
+            text-align: center;
+            color: var(--subtext-color);
+            background: var(--card-bg);
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .loading-pulse {
+            animation: pulse 1.5s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="search-container glass">
+        <div class="search-box">
+            <input type="text" 
+                   class="search-input" 
+                   placeholder="Search users..." 
+                   id="searchInput"
+                   autocomplete="off">
+            <span class="search-icon">🔍</span>
+        </div>
+        <div id="searchResults" class="results-container"></div>
+    </div>
+
+    <script>
+        const searchInput = document.getElementById('searchInput');
+        const searchResults = document.getElementById('searchResults');
+        let searchTimeout;
+
+        function showLoading() {
+            searchResults.innerHTML = `
+                <div class="loading">
+                    <span class="loading-pulse">Searching...</span>
+                </div>
+            `;
+        }
+
+        function showNoResults() {
+            searchResults.innerHTML = `
+                <div class="no-results">
+                    No users found
+                </div>
+            `;
+        }
+
+        function getInitials(username) {
+            return username.substring(0, 2).toUpperCase();
+        }
+
+        function createResultItem(username) {
+            return `
+                <div class="result-item" onclick="location.href='/profile/${username}'">
+                    <div class="result-avatar">
+                        ${getInitials(username)}
+                    </div>
+                    <div class="result-info">
+                        <div class="result-username">@${username}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function searchUsers(query) {
+            try {
+                const response = await fetch(`/api/users/search?q=${encodeURIComponent(query)}`);
+                if (!response.ok) throw new Error('Search failed');
+                
+                const data = await response.json();
+                
+                if (data.matches.length === 0) {
+                    showNoResults();
+                    return;
+                }
+
+                searchResults.innerHTML = data.matches
+                    .map(username => createResultItem(username))
+                    .join('');
+            } catch (error) {
+                console.error('Search error:', error);
+                searchResults.innerHTML = `
+                    <div class="no-results">
+                        An error occurred while searching
+                    </div>
+                `;
+            }
+        }
+
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.trim();
+            
+            clearTimeout(searchTimeout);
+            
+            if (query.length === 0) {
+                searchResults.innerHTML = '';
+                return;
+            }
+
+            if (query.length < 2) return;
+
+            showLoading();
+            
+            // Debounce the search to avoid too many requests
+            searchTimeout = setTimeout(() => {
+                searchUsers(query);
+            }, 300);
+        });
+
+        // Close results when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+                searchResults.innerHTML = '';
+            }
+        });
+    </script>
+</body>
+</html> 

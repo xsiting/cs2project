@@ -17,6 +17,17 @@
             <a href="/dashboard"><i class="fa-solid fa-house"></i> Dashboard</a>
             <a href="/logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
         </div>
+        <div class="nav-right">
+            <span class="search-icon" onclick="toggleSearch()">🔍</span>
+            <div class="search-container" id="searchContainer">
+                <input type="text" 
+                       class="search-input" 
+                       placeholder="Search users..." 
+                       id="searchInput"
+                       autocomplete="off">
+                <div class="search-results" id="searchResults"></div>
+            </div>
+        </div>
     </nav>
     <div class="dashboard-main">
         <aside class="dashboard-sidebar glass">
@@ -348,5 +359,90 @@
             });
     });
     </script>
+    <script>
+function toggleSearch() {
+    const container = document.getElementById('searchContainer');
+    container.classList.toggle('active');
+    if (container.classList.contains('active')) {
+        document.getElementById('searchInput').focus();
+    }
+}
+
+// Close search when clicking outside
+document.addEventListener('click', (e) => {
+    const container = document.getElementById('searchContainer');
+    const searchIcon = document.querySelector('.search-icon');
+    if (!container.contains(e.target) && !searchIcon.contains(e.target)) {
+        container.classList.remove('active');
+    }
+});
+
+const searchInput = document.getElementById('searchInput');
+const searchResults = document.getElementById('searchResults');
+let searchTimeout;
+
+async function searchUsers(query) {
+    try {
+        const response = await fetch(`/api/users/search?q=${encodeURIComponent(query)}`);
+        if (!response.ok) throw new Error('Search failed');
+        
+        const data = await response.json();
+        
+        searchResults.innerHTML = data.matches.length ? 
+            data.matches.map(username => `
+                <div class="search-result">
+                    <span class="search-result-username">@${username}</span>
+                    <button class="send-request-btn" 
+                            onclick="sendFriendRequest('${username}')"
+                            id="btn-${username}">
+                        Add Friend
+                    </button>
+                </div>
+            `).join('') :
+            '<div class="search-result">No users found</div>';
+    } catch (error) {
+        console.error('Search error:', error);
+        searchResults.innerHTML = '<div class="search-result">Error searching users</div>';
+    }
+}
+
+async function sendFriendRequest(username) {
+    const btn = document.getElementById(`btn-${username}`);
+    try {
+        btn.disabled = true;
+        const response = await fetch('/send_friend_request', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ to: username })
+        });
+        
+        if (!response.ok) throw new Error('Failed to send request');
+        
+        btn.textContent = 'Request Sent';
+    } catch (error) {
+        console.error('Error:', error);
+        btn.textContent = 'Error';
+        btn.disabled = false;
+    }
+}
+
+searchInput.addEventListener('input', (e) => {
+    const query = e.target.value.trim();
+    clearTimeout(searchTimeout);
+    
+    if (query.length === 0) {
+        searchResults.innerHTML = '';
+        return;
+    }
+
+    // Only search when user has typed at least 2 characters
+    if (query.length < 2) return;
+    
+    // Debounce the search
+    searchTimeout = setTimeout(() => {
+        searchUsers(query);
+    }, 300);
+});
+</script>
 </body>
 </html>
