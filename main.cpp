@@ -12,8 +12,8 @@
 #include <random>
 #include "post.h"
 #include <nlohmann/json.hpp>
-using json = nlohmann::json;
 #include <cctype>
+using json = nlohmann::json;
 
 std::unordered_map<std::string, std::string> sessionMap;
 
