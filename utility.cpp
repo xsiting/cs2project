@@ -56,11 +56,11 @@ std::vector<std::string> getFriendUsernames(const User& user) {
 }
 
 std::vector<Post> getTimelinePosts(const std::string& username, const std::vector<User>& users, const std::vector<Post>& allPosts) {
-    // Find user
-    auto it = std::find_if(users.begin(), users.end(), [&](const User& u) { return u.getUsername() == username; });
+    // Find user using findUserByUsername
+    User* user = findUserByUsername(const_cast<std::vector<User>&>(users), username);
     std::vector<std::string> friendNames;
-    if (it != users.end()) {
-        friendNames = it->getFriends();
+    if (user) {
+        friendNames = user->getFriends();
     }
     friendNames.push_back(username); // include self
     // Use a vector to collect posts
@@ -70,10 +70,8 @@ std::vector<Post> getTimelinePosts(const std::string& username, const std::vecto
             timeline.push_back(post);
         }
     }
-    // Sort by timestamp descending
-    std::sort(timeline.begin(), timeline.end(), [](const Post& a, const Post& b) {
-        return a.timestamp > b.timestamp;
-    });
+    // Sort by timestamp descending using overloaded operator>
+    std::sort(timeline.begin(), timeline.end(), std::greater<Post>());
     return timeline;
 }
 
@@ -101,6 +99,10 @@ void sendFriendRequest(const std::string& from, const std::string& to) {
     auto requests = loadFriendRequests();
     for (const auto& req : requests) {
         if (req.from == from && req.to == to && req.status == "pending") return; // already sent
+        else if (req.from == to && req.to == from && req.status == "accepted") {
+            std::cerr << "[DEBUG] Friend request already accepted between " << from << " and " << to << std::endl;
+            return; // already friends
+        }
     }
     requests.push_back({from, to, "pending"});
     saveFriendRequests(requests);
@@ -116,11 +118,11 @@ void acceptFriendRequest(const std::string& from, const std::string& to) {
     saveFriendRequests(requests);
     // Add each other as friends
     auto users = loadUsersFromFile();
-    auto itFrom = std::find_if(users.begin(), users.end(), [&](const User& u){return u.getUsername() == from;});
-    auto itTo = std::find_if(users.begin(), users.end(), [&](const User& u){return u.getUsername() == to;});
-    if (itFrom != users.end() && itTo != users.end()) {
-        itFrom->addFriend(to);
-        itTo->addFriend(from);
+    User* fromUser = findUserByUsername(users, from);
+    User* toUser = findUserByUsername(users, to);
+    if (fromUser && toUser) {
+        fromUser->addFriend(to);
+        toUser->addFriend(from);
         saveUsersToFile(users);
     }
 }
@@ -136,11 +138,13 @@ void rejectFriendRequest(const std::string& from, const std::string& to) {
 }
 void cancelFriendRequest(const std::string& from, const std::string& to) {
     auto requests = loadFriendRequests();
-    std::cerr << "[DEBUG] Before remove_if in cancelFriendRequest, size: " << requests.size() << std::endl;
-    auto it = std::remove_if(requests.begin(), requests.end(), [&](const FriendRequest& req){
-        return req.from == from && req.to == to && req.status == "pending";
-    });
-    std::cerr << "[DEBUG] After remove_if, it - begin: " << (it - requests.begin()) << ", end - begin: " << (requests.end() - requests.begin()) << std::endl;
+    std::cerr << "[DEBUG] Before remove in cancelFriendRequest, size: " << requests.size() << std::endl;
+    
+    // Create a FriendRequest object to match against
+    FriendRequest toRemove(from, to, "pending");
+    
+    auto it = std::remove(requests.begin(), requests.end(), toRemove);
+    std::cerr << "[DEBUG] After remove, it - begin: " << (it - requests.begin()) << ", end - begin: " << (requests.end() - requests.begin()) << std::endl;
     requests.erase(it, requests.end());
     std::cerr << "[DEBUG] After erase, size: " << requests.size() << std::endl;
     saveFriendRequests(requests);

@@ -339,10 +339,10 @@ int main() {
         std::string username = getUsernameFromSession(req);
         if (username.empty()) return crow::response(401, "Not logged in");
         auto users = loadUsersFromFile();
-        auto it = std::find_if(users.begin(), users.end(), [&](const User& u){return u.getUsername() == username;});
+        User* user = findUserByUsername(users, username);
         std::ostringstream html;
-        if (it != users.end()) {
-            for (const auto& f : it->getFriends()) {
+        if (user) {
+            for (const auto& f : user->getFriends()) {
                 html << "<div>" << f << "</div>";
             }
         }
@@ -376,10 +376,10 @@ int main() {
             std::string username = getUsernameFromSession(req);
             if (username.empty()) return crow::response(401, "Not logged in");
             auto users = loadUsersFromFile();
-            auto it = std::find_if(users.begin(), users.end(), [&](const User& u){return u.getUsername() == username;});
+            User* user = findUserByUsername(users, username);
             std::ostringstream html;
-            if (it != users.end()) {
-                auto suggestions = suggestFriends(*it, users);
+            if (user) {
+                auto suggestions = suggestFriends(*user, users);
                 for (const auto& s : suggestions) {
                     html << "<div class='suggestion-item'>";
                     html << "<span class='suggestion-username'>" << s << "</span>";
@@ -457,10 +457,10 @@ int main() {
         if (username.empty()) return crow::response(401, "Not logged in");
         
         auto users = loadUsersFromFile();
-        auto currentUser = std::find_if(users.begin(), users.end(), [&](const User& u) { return u.getUsername() == username; });
-        auto targetUser = std::find_if(users.begin(), users.end(), [&](const User& u) { return u.getUsername() == otherUser; });
+        User* currentUser = findUserByUsername(users, username);
+        User* targetUser = findUserByUsername(users, otherUser);
         
-        if (currentUser == users.end() || targetUser == users.end()) {
+        if (!currentUser || !targetUser) {
             return crow::response(404, "User not found");
         }
         
@@ -481,9 +481,9 @@ int main() {
         if (username.empty()) return crow::response(401, "Not logged in");
         
         auto users = loadUsersFromFile();
-        auto currentUser = std::find_if(users.begin(), users.end(), [&](const User& u) { return u.getUsername() == username; });
+        User* currentUser = findUserByUsername(users, username);
         
-        if (currentUser == users.end()) {
+        if (!currentUser) {
             return crow::response(404, "User not found");
         }
         
@@ -508,9 +508,9 @@ int main() {
         if (username.empty()) return crow::response(401, "Not logged in");
         
         auto users = loadUsersFromFile();
-        auto currentUser = std::find_if(users.begin(), users.end(), [&](const User& u) { return u.getUsername() == username; });
+        User* currentUser = findUserByUsername(users, username);
         
-        if (currentUser == users.end()) {
+        if (!currentUser) {
             return crow::response(404, "User not found");
         }
         
@@ -529,9 +529,9 @@ int main() {
         if (username.empty()) return crow::response(401, "Not logged in");
         
         auto users = loadUsersFromFile();
-        auto currentUser = std::find_if(users.begin(), users.end(), [&](const User& u) { return u.getUsername() == username; });
+        User* currentUser = findUserByUsername(users, username);
         
-        if (currentUser == users.end()) {
+        if (!currentUser) {
             return crow::response(404, "User not found");
         }
         

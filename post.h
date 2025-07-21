@@ -19,6 +19,14 @@ struct Post {
     void removeLike(const std::string& username);
     bool isLikedBy(const std::string& username) const;
     int getLikeCount() const;
+
+    // Comparison operators for sorting by timestamp
+    bool operator>(const Post& other) const {
+        return timestamp > other.timestamp;
+    }
+    bool operator<(const Post& other) const {
+        return timestamp < other.timestamp;
+    }
 };
 
 std::vector<Post> loadPostsFromFile();

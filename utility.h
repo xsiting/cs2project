@@ -22,6 +22,17 @@ struct FriendRequest {
     std::string from;
     std::string to;
     std::string status; // "pending", "accepted", "rejected"
+
+    // Add comparison operator
+    bool operator==(const FriendRequest& other) const {
+        return from == other.from && 
+               to == other.to && 
+               status == other.status;
+    }
+
+    // Add a constructor for easy comparison
+    FriendRequest(const std::string& f, const std::string& t, const std::string& s)
+        : from(f), to(t), status(s) {}
 };
 std::vector<FriendRequest> loadFriendRequests(const std::string& filename = "../../friend_requests.json");
 void saveFriendRequests(const std::vector<FriendRequest>& requests, const std::string& filename = "../../friend_requests.json");

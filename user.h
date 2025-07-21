@@ -60,4 +60,13 @@ public:
     bool isFriend(const std::string& friendUsername) const;
     json to_json() const;
     static User from_json(const json&);
+
+    // Add operator== for comparison with string
+    bool operator==(const std::string& other) const {
+        return username == other;
+    }
+    // Add operator== for comparison with User
+    bool operator==(const User& other) const {
+        return username == other.username;
+    }
 };
