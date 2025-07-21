@@ -754,6 +754,7 @@ footer {
     align-items: center;
     justify-content: space-between;
     border-bottom: 1px solid var(--border-color);
+    position: relative;
 }
 
 .search-result:last-child {
@@ -782,4 +783,17 @@ footer {
 .send-request-btn:disabled {
     background: var(--border-color);
     cursor: not-allowed;
+}
+
+.error-message {
+    color: #dc2626;
+    font-size: 0.8rem;
+    margin-top: 4px;
+    padding: 4px 8px;
+    background: #fee2e2;
+    border-radius: 4px;
+    position: absolute;
+    right: 10px;
+    transform: translateY(100%);
+    z-index: 1;
 }

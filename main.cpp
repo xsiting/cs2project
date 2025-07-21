@@ -1,6 +1,7 @@
 #include "crow_all.h"
 #include "user.h"
-#include "utility.h"            
+#include "user_search.h"
+#include "utility.h"
 #include <fstream>
 #include <sstream>
 #include <iomanip>
@@ -127,27 +128,13 @@ std::string urlDecode(const std::string& str) {
 static UserSearch userSearch;
 
 // Update search index when users change
-void updateSearchIndex(const vector<User>& users) {
+void updateSearchIndex(const std::vector<User>& users) {
     userSearch.clear();
     for (const auto& user : users) {
         userSearch.insert(user.getUsername());
     }
 }
 
-// Add this with your routes
-CROW_ROUTE(app, "/api/users/search")
-([](const crow::request& req) {
-    auto query = req.url_params.get("q");
-    if (!query) return crow::response(400);
-
-    auto results = userSearch.search(query);
-    
-    json response = {
-        {"matches", results}
-    };
-    
-    return crow::response(response.dump());
-});
 
 
 int main() {
@@ -229,7 +216,7 @@ int main() {
         
 
     crow::response res(303);
-    std::cerr << "Token is " << token << endl;
+    std::cerr << "Token is " << token << std::endl;
     res.add_header("Set-Cookie", "session=" + token + "; Path=/; HttpOnly");
     res.add_header("Location", "/dashboard");  // Redirect after login
     return res;
@@ -425,27 +412,31 @@ int main() {
             return crow::response(500, "Unknown error");
         }
     });
-    CROW_ROUTE(app, "/send_friend_request").methods("POST"_method)([](const crow::request& req) {
-        std::cerr << "[DEBUG] /send_friend_request POST called\n";
-        std::string username = getUsernameFromSession(req);
-        std::cerr << "[DEBUG] /send_friend_request called by: " << username << "\n";
-        if (username.empty()) {
-            std::cerr << "[DEBUG] Not logged in\n";
-            return crow::response(401, "Not logged in");
-        }
-        auto pos = req.body.find("to=");
-        if (pos == std::string::npos) {
-            std::cerr << "[DEBUG] Missing 'to' in body: " << req.body << "\n";
-            return crow::response(400, "Missing 'to'");
-        }
-        std::string to = req.body.substr(pos + 3);
-        // Trim whitespace
-        to.erase(0, to.find_first_not_of(" \t\n\r"));
-        to.erase(to.find_last_not_of(" \t\n\r") + 1);
-        std::cerr << "[DEBUG] Sending friend request to: '" << to << "'\n";
-        sendFriendRequest(username, to);
-        return crow::response(200);
-    });
+    CROW_ROUTE(app, "/send_friend_request")
+    .methods("POST"_method)
+([](const crow::request& req) {
+    std::string username = getUsernameFromSession(req);
+    if (username.empty()) {
+        return crow::response(401, "Not authenticated");
+    }
+
+    auto x = crow::json::load(req.body);
+    if (!x) {
+        return crow::response(400, "Invalid JSON");
+    }
+
+    std::string to_username = x["to"].s();
+    if (to_username.empty()) {
+        return crow::response(400, "Missing 'to' field");
+    }
+
+    try {
+        sendFriendRequest(username, to_username);
+        return crow::response(200, "Friend request sent");
+    } catch (const std::exception& e) {
+        return crow::response(400, e.what());
+    }
+});
     CROW_ROUTE(app, "/accept_friend_request").methods("POST"_method)([](const crow::request& req) {
         std::cerr << "[DEBUG] /accept_friend_request POST called\n";
         std::string username = getUsernameFromSession(req);
@@ -608,6 +599,36 @@ int main() {
         json response;
         response["username"] = username;
         return crow::response(response.dump());
+    });
+
+    // Add this with your routes
+    // Search endpoint
+    CROW_ROUTE(app, "/api/users/search")
+    ([](const crow::request& req) {
+        try {
+            // Get the query parameter
+            auto query = req.url_params.get("q");
+            if (!query) {
+                return crow::response(400, "Missing query parameter");
+            }
+
+            // Get current user for friend status check
+            std::string current_user = getUsernameFromSession(req);
+            
+            // Perform the search
+            auto results = userSearch.search(query);
+            
+            // Create response JSON
+            json response = {
+                {"matches", results},
+                {"current_user", current_user}
+            };
+            
+            return crow::response(response.dump());
+        } catch (const std::exception& e) {
+            std::cerr << "Search error: " << e.what() << std::endl;
+            return crow::response(500, "Internal server error");
+        }
     });
 
     // Update your user loading code to also update the search index

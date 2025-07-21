@@ -58,5 +58,10 @@
     "from": "anas11",
     "status": "pending",
     "to": "Martin"
+  },
+  {
+    "from": "Anas",
+    "status": "rejected",
+    "to": "Martin"
   }
 ]
