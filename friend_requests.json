@@ -10,11 +10,6 @@
     "to": "anas"
   },
   {
-    "from": "Martin",
-    "status": "pending",
-    "to": "Anas1"
-  },
-  {
     "from": "Ibrahim",
     "status": "pending",
     "to": "Anas"
@@ -51,17 +46,37 @@
   },
   {
     "from": "Ibrahim",
-    "status": "pending",
+    "status": "rejected",
     "to": "Martin"
   },
   {
     "from": "anas11",
-    "status": "pending",
+    "status": "rejected",
     "to": "Martin"
   },
   {
     "from": "Anas",
     "status": "rejected",
     "to": "Martin"
+  },
+  {
+    "from": "Martin",
+    "status": "rejected",
+    "to": "Ebram"
+  },
+  {
+    "from": "Ebram",
+    "status": "accepted",
+    "to": "Ibrahim"
+  },
+  {
+    "from": "Ebram",
+    "status": "pending",
+    "to": "Ibrahim04"
+  },
+  {
+    "from": "Ebram",
+    "status": "accepted",
+    "to": "Marvel"
   }
 ]

@@ -24,6 +24,8 @@
     },
     "Ebram": {
         "friends": [
+            "Ibrahim",
+            "Marvel",
             "anas",
             "anas11"
         ],
@@ -36,7 +38,9 @@
         "username": "Ebram1"
     },
     "Ibrahim": {
-        "friends": [],
+        "friends": [
+            "Ebram"
+        ],
         "passwordHash": "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
         "username": "Ibrahim"
     },
@@ -73,7 +77,9 @@
         "username": "Martino"
     },
     "Marvel": {
-        "friends": [],
+        "friends": [
+            "Ebram"
+        ],
         "passwordHash": "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
         "username": "Marvel"
     },
