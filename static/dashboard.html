@@ -18,6 +18,13 @@
             <a href="/logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
         </div>
     </nav>
+    
+    <!-- Add notification element -->
+    <div class="notification" id="notification">
+        <i class="fa-solid fa-bell"></i>
+        <span id="notification-text">New post from a friend!</span>
+    </div>
+
     <div class="dashboard-main">
         <aside class="dashboard-sidebar glass">
             <div class="profile-card">
@@ -34,10 +41,6 @@
                 <div id="friend-list" class="sidebar-list"></div>
             </div>
             <div class="sidebar-section glass">
-                <h4><i class="fa-solid fa-clock"></i> Pending Requests</h4>
-                <div id="pending-requests" class="sidebar-list"></div>
-            </div>
-            <div class="sidebar-section glass">
                 <h4><i class="fa-solid fa-paper-plane"></i> Sent Requests</h4>
                 <div id="sent-requests" class="sidebar-list"></div>
             </div>
@@ -50,6 +53,14 @@
                 <div id="send-friend-feedback" class="feedback" style="display:none;"></div>
             </div>
             <div class="sidebar-section glass">
+                <h4><i class="fa-solid fa-search"></i> Search Users</h4>
+                <div class="sidebar-form">
+                    <input type="text" id="search-input" placeholder="Search by username..." autocomplete="off">
+                    <button type="button" id="search-btn"><i class="fa-solid fa-search"></i></button>
+                </div>
+                <div id="search-results" class="sidebar-list search-results"></div>
+            </div>
+            <div class="sidebar-section glass">
                 <h4><i class="fa-solid fa-lightbulb"></i> Friend Suggestions</h4>
                 <div id="friend-suggestions" class="sidebar-list"></div>
             </div>
@@ -60,20 +71,6 @@
                     <button type="submit"><i class="fa-solid fa-calculator"></i> Calculate</button>
                 </form>
                 <div id="mutual-friends-result" class="sidebar-list"></div>
-            </div>
-            <div class="sidebar-section glass">
-                <h4><i class="fa-solid fa-chart-line"></i> Friends Analysis</h4>
-                <button id="analyze-friends-btn" class="sidebar-btn">
-                    <i class="fa-solid fa-analytics"></i> Analyze Network
-                </button>
-                <div id="friends-analysis-result" class="sidebar-list"></div>
-            </div>
-            <div class="sidebar-section glass">
-                <h4><i class="fa-solid fa-network-wired"></i> Second Degree</h4>
-                <button id="second-degree-btn" class="sidebar-btn">
-                    <i class="fa-solid fa-sitemap"></i> Show Connections
-                </button>
-                <div id="second-degree-result" class="sidebar-list"></div>
             </div>
         </aside>
         <main class="dashboard-content">
@@ -102,6 +99,54 @@
     </footer>
     <script>
     let currentUsername = '';
+    let lastPostTimestamp = '';  // Track the most recent post we've seen
+    
+    // Function to show notification
+    function showNotification(message) {
+        const notification = document.getElementById('notification');
+        const notificationText = document.getElementById('notification-text');
+        notificationText.textContent = message;
+        notification.classList.add('show');
+        
+        // Hide notification after 5 seconds
+        setTimeout(() => {
+            notification.classList.remove('show');
+        }, 5000);
+    }
+
+    // Click notification to dismiss
+    document.getElementById('notification').addEventListener('click', function() {
+        this.classList.remove('show');
+    });
+    
+    function loadTimeline() {
+        fetch('/timeline')
+            .then(res => res.text())
+            .then(html => {
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = html;
+                
+                // Get the first post's timestamp (most recent)
+                const firstPost = tempDiv.querySelector('.post d');
+                const newLatestTimestamp = firstPost ? firstPost.textContent : '';
+                
+                // If we have a previous timestamp and it's different, there's a new post
+                if (lastPostTimestamp && newLatestTimestamp && newLatestTimestamp !== lastPostTimestamp) {
+                    showNotification('New post from a friend!');
+                }
+                
+                // Update the timestamp
+                lastPostTimestamp = newLatestTimestamp;
+                
+                // Update the timeline
+                document.getElementById('timeline').innerHTML = html;
+                // Re-attach like event listeners after loading timeline
+                attachLikeEventListeners();
+            });
+    }
+    
+    // Check for new posts every 30 seconds
+    setInterval(loadTimeline, 30000);
     
     function loadCurrentUser() {
         fetch('/current_user')
@@ -112,16 +157,6 @@
             })
             .catch(err => {
                 console.error('Error loading current user:', err);
-            });
-    }
-    
-    function loadTimeline() {
-        fetch('/timeline')
-            .then(res => res.text())
-            .then(html => {
-                document.getElementById('timeline').innerHTML = html;
-                // Re-attach like event listeners after loading timeline
-                attachLikeEventListeners();
             });
     }
     
@@ -163,9 +198,6 @@
         fetch('/friends').then(res => res.text()).then(html => {
             document.getElementById('friend-list').innerHTML = html;
         });
-        fetch('/pending_requests').then(res => res.text()).then(html => {
-            document.getElementById('pending-requests').innerHTML = html;
-        });
         fetch('/sent_requests').then(res => res.text()).then(html => {
             document.getElementById('sent-requests').innerHTML = html;
         });
@@ -202,22 +234,6 @@
             setTimeout(() => document.getElementById('send-friend-feedback').style.display = 'none', 1500);
         });
     });
-    // Accept/reject friend requests (pending-requests)
-    document.getElementById('pending-requests').addEventListener('click', function(e) {
-        if (e.target.classList.contains('accept-request')) {
-            fetch('/accept_friend_request', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-                body: 'from=' + encodeURIComponent(e.target.dataset.from)
-            }).then(() => loadFriends());
-        } else if (e.target.classList.contains('reject-request')) {
-            fetch('/reject_friend_request', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-                body: 'from=' + encodeURIComponent(e.target.dataset.from)
-            }).then(() => loadFriends());
-        }
-    });
     // Cancel sent requests (sent-requests)
     document.getElementById('sent-requests').addEventListener('click', function(e) {
         if (e.target.classList.contains('cancel-request')) {
@@ -227,6 +243,92 @@
                 body: 'to=' + encodeURIComponent(e.target.dataset.to)
             }).then(() => loadFriends());
         }
+    });
+
+    // Search functionality
+    let searchTimeout;
+    const searchInput = document.getElementById('search-input');
+    const searchResults = document.getElementById('search-results');
+    const searchBtn = document.getElementById('search-btn');
+
+    function performSearch() {
+        const query = searchInput.value.trim();
+        if (query.length === 0) {
+            searchResults.innerHTML = '';
+            return;
+        }
+
+        fetch('/search_users?q=' + encodeURIComponent(query))
+            .then(res => res.json())
+            .then(results => {
+                if (results.length === 0) {
+                    searchResults.innerHTML = '<div class="no-results">No users found</div>';
+                    return;
+                }
+
+                let html = '';
+                results.forEach(user => {
+                    html += '<div class="search-result-item">';
+                    html += '<span class="search-username">' + user.username + '</span>';
+                    if (user.isFriend) {
+                        html += '<span class="friend-badge"><i class="fa-solid fa-check"></i> Friend</span>';
+                    } else if (user.requestSent) {
+                        html += '<span class="request-sent-badge"><i class="fa-solid fa-clock"></i> Request Sent</span>';
+                    } else {
+                        html += '<button class="send-request-btn" data-username="' + user.username + '">';
+                        html += '<i class="fa-solid fa-user-plus"></i> Send Request</button>';
+                    }
+                    html += '</div>';
+                });
+                searchResults.innerHTML = html;
+            })
+            .catch(err => {
+                console.error('Error searching users:', err);
+                searchResults.innerHTML = '<div class="error">Error searching users</div>';
+            });
+    }
+
+    // Add event listeners for search
+    searchInput.addEventListener('input', () => {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(performSearch, 300); // Debounce search
+    });
+
+    searchBtn.addEventListener('click', performSearch);
+
+    searchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            performSearch();
+        }
+    });
+
+    // Handle friend requests from search results
+    searchResults.addEventListener('click', (e) => {
+        const btn = e.target.closest('.send-request-btn');
+        if (!btn) return;
+
+        const username = btn.dataset.username;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-clock"></i> Sending...';
+
+        fetch('/send_friend_request', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: 'to=' + encodeURIComponent(username)
+        })
+        .then(() => {
+            btn.innerHTML = '<i class="fa-solid fa-check"></i> Sent!';
+            btn.style.background = '#4CAF50';
+            loadFriends();
+            setTimeout(performSearch, 1000); // Refresh search results
+        })
+        .catch(err => {
+            console.error('Error sending friend request:', err);
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-user-plus"></i> Send Request';
+            btn.style.background = '';
+        });
     });
 
     // Send friend request from suggestions
@@ -271,13 +373,24 @@
     document.getElementById('mutual-friends-form').addEventListener('submit', function(e) {
         e.preventDefault();
         const otherUser = document.getElementById('other-username').value;
+        const resultDiv = document.getElementById('mutual-friends-result');
+        
+        // Show loading state
+        resultDiv.innerHTML = '<div class="loading">Calculating...</div>';
+        
         fetch('/mutual_friends/' + encodeURIComponent(otherUser))
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+                return res.json();
+            })
             .then(data => {
+                console.log('Mutual friends data:', data);  // Debug log
                 let html = '<div class="mutual-friends-result">';
                 html += '<h5>Mutual Friends with ' + data.user2 + '</h5>';
                 html += '<p><strong>Count:</strong> ' + data.count + '</p>';
-                if (data.mutual_friends.length > 0) {
+                if (data.mutual_friends && data.mutual_friends.length > 0) {
                     html += '<ul>';
                     data.mutual_friends.forEach(friend => {
                         html += '<li>' + friend + '</li>';
@@ -287,64 +400,12 @@
                     html += '<p>No mutual friends found.</p>';
                 }
                 html += '</div>';
-                document.getElementById('mutual-friends-result').innerHTML = html;
+                resultDiv.innerHTML = html;
             })
             .catch(err => {
-                document.getElementById('mutual-friends-result').innerHTML = 
-                    '<div class="error">Error: ' + err.message + '</div>';
-            });
-    });
-
-    // Friends analysis
-    document.getElementById('analyze-friends-btn').addEventListener('click', function() {
-        fetch('/friends_analysis')
-            .then(res => res.json())
-            .then(data => {
-                let html = '<div class="friends-analysis-result">';
-                html += '<h5>Network Analysis</h5>';
-                html += '<p><strong>Total Friends:</strong> ' + data.total_friends + '</p>';
-                html += '<p><strong>Second Degree:</strong> ' + data.second_degree_connections + '</p>';
-                html += '<p><strong>Suggestions:</strong> ' + data.friend_suggestions + '</p>';
-                
-                if (data.top_suggestions.length > 0) {
-                    html += '<h6>Top Suggestions:</h6><ul>';
-                    data.top_suggestions.forEach(suggestion => {
-                        html += '<li>' + suggestion.username + ' (Score: ' + suggestion.score + ')</li>';
-                    });
-                    html += '</ul>';
-                }
-                html += '</div>';
-                document.getElementById('friends-analysis-result').innerHTML = html;
-            })
-            .catch(err => {
-                document.getElementById('friends-analysis-result').innerHTML = 
-                    '<div class="error">Error: ' + err.message + '</div>';
-            });
-    });
-
-    // Second degree connections
-    document.getElementById('second-degree-btn').addEventListener('click', function() {
-        fetch('/second_degree_connections')
-            .then(res => res.json())
-            .then(data => {
-                let html = '<div class="second-degree-result">';
-                html += '<h5>Second Degree Connections</h5>';
-                html += '<p><strong>Count:</strong> ' + data.count + '</p>';
-                if (data.second_degree_connections.length > 0) {
-                    html += '<ul>';
-                    data.second_degree_connections.forEach(connection => {
-                        html += '<li>' + connection + '</li>';
-                    });
-                    html += '</ul>';
-                } else {
-                    html += '<p>No second degree connections found.</p>';
-                }
-                html += '</div>';
-                document.getElementById('second-degree-result').innerHTML = html;
-            })
-            .catch(err => {
-                document.getElementById('second-degree-result').innerHTML = 
-                    '<div class="error">Error: ' + err.message + '</div>';
+                console.error('Error calculating mutual friends:', err);  // Debug log
+                resultDiv.innerHTML = 
+                    '<div class="error">Error calculating mutual friends. Please make sure the username exists.</div>';
             });
     });
     </script>
