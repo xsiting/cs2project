@@ -11,7 +11,7 @@
   },
   {
     "from": "Martin",
-    "status": "pending",
+    "status": "rejected",
     "to": "Anas1"
   },
   {
@@ -51,7 +51,7 @@
   },
   {
     "from": "Ibrahim",
-    "status": "pending",
+    "status": "accepted",
     "to": "Martin"
   },
   {
@@ -61,12 +61,12 @@
   },
   {
     "from": "Ebram",
-    "status": "pending",
-    "to": "Martin"
+    "status": "accepted",
+    "to": "Anas1"
   },
   {
-    "from": "Ebram",
-    "status": "pending",
-    "to": "Anas1"
+    "from": "ahmed",
+    "status": "accepted",
+    "to": "Ebram"
   }
 ]

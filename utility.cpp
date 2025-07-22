@@ -79,7 +79,21 @@ std::vector<Post> getTimelinePosts(const std::string& username, const std::vecto
 std::vector<FriendRequest> loadFriendRequests(const std::string& filename) {
     std::vector<FriendRequest> requests;
     std::ifstream in(filename);
-    if (!in.is_open()) return requests;
+    if (!in.is_open()) {
+        std::cerr << "Could not open friend requests file: " << filename << std::endl;
+        // Try with relative path
+        std::ifstream in2("../../friend_requests.json");
+        if (!in2.is_open()) {
+            std::cerr << "Could not open friend requests file with relative path either" << std::endl;
+            return requests;
+        }
+        json j;
+        in2 >> j;
+        for (const auto& item : j) {
+            requests.push_back({item["from"], item["to"], item["status"]});
+        }
+        return requests;
+    }
     json j;
     in >> j;
     for (const auto& item : j) {
@@ -150,11 +164,18 @@ void cancelFriendRequest(const std::string& from, const std::string& to) {
     saveFriendRequests(requests);
 }
 std::vector<std::string> getPendingRequestsForUser(const std::string& username) {
+    std::cerr << "[DEBUG] Getting pending requests for user: " << username << std::endl;
     auto requests = loadFriendRequests();
+    std::cerr << "[DEBUG] Loaded " << requests.size() << " total friend requests" << std::endl;
     std::vector<std::string> result;
     for (const auto& req : requests) {
-        if (req.to == username && req.status == "pending") result.push_back(req.from);
+        std::cerr << "[DEBUG] Checking request: from=" << req.from << ", to=" << req.to << ", status=" << req.status << std::endl;
+        if (req.to == username && req.status == "pending") {
+            std::cerr << "[DEBUG] Found pending request from " << req.from << std::endl;
+            result.push_back(req.from);
+        }
     }
+    std::cerr << "[DEBUG] Found " << result.size() << " pending requests" << std::endl;
     return result;
 }
 std::vector<std::string> getSentRequestsByUser(const std::string& username) {

@@ -370,6 +370,28 @@ int main() {
         }
         return crow::response(html.str());
     });
+
+    CROW_ROUTE(app, "/received_requests").methods("GET"_method)([](const crow::request& req) {
+        std::cerr << "[DEBUG] /received_requests GET called\n";
+        std::string username = getUsernameFromSession(req);
+        if (username.empty()) return crow::response(401, "Not logged in");
+        auto received = getPendingRequestsForUser(username);
+        std::ostringstream html;
+        for (const auto& from : received) {
+            html << "<div class='request-card'>";
+            html << "<span class='request-username'>" << from << "</span>";
+            html << "<div class='request-actions'>";
+            html << "<button class='accept-request' data-from='" << from << "'>";
+            html << "<i class='fa-solid fa-check'></i> Accept";
+            html << "</button>";
+            html << "<button class='reject-request' data-from='" << from << "'>";
+            html << "<i class='fa-solid fa-xmark'></i> Reject";
+            html << "</button>";
+            html << "</div></div>";
+        }
+        return crow::response(html.str());
+    });
+
     CROW_ROUTE(app, "/friend_suggestions").methods("GET"_method)([](const crow::request& req) {
         std::cerr << "[DEBUG] /friend_suggestions GET called\n";
         try {

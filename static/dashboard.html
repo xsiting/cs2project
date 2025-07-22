@@ -45,6 +45,10 @@
                 <div id="sent-requests" class="sidebar-list"></div>
             </div>
             <div class="sidebar-section glass">
+                <h4><i class="fa-solid fa-envelope"></i> Friend Requests</h4>
+                <div id="received-requests" class="sidebar-list"></div>
+            </div>
+            <div class="sidebar-section glass">
                 <h4><i class="fa-solid fa-user-plus"></i> Send Friend Request</h4>
                 <form id="send-friend-form" class="sidebar-form">
                     <input type="text" id="friend-username" placeholder="Username" required>
@@ -197,12 +201,40 @@
     function loadFriends() {
         fetch('/friends').then(res => res.text()).then(html => {
             document.getElementById('friend-list').innerHTML = html;
+        }).catch(error => {
+            console.error('Error loading friends:', error);
+            document.getElementById('friend-list').innerHTML = '<div class="error">Error loading friends</div>';
         });
+
         fetch('/sent_requests').then(res => res.text()).then(html => {
             document.getElementById('sent-requests').innerHTML = html;
+        }).catch(error => {
+            console.error('Error loading sent requests:', error);
+            document.getElementById('sent-requests').innerHTML = '<div class="error">Error loading sent requests</div>';
         });
+
+        fetch('/received_requests')
+            .then(res => {
+                console.log('Received requests response:', res.status);
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+                return res.text();
+            })
+            .then(html => {
+                console.log('Received requests HTML:', html);
+                document.getElementById('received-requests').innerHTML = html || '<div class="info">No friend requests</div>';
+            })
+            .catch(error => {
+                console.error('Error loading received requests:', error);
+                document.getElementById('received-requests').innerHTML = '<div class="error">Error loading friend requests</div>';
+            });
+
         fetch('/friend_suggestions').then(res => res.text()).then(html => {
             document.getElementById('friend-suggestions').innerHTML = html;
+        }).catch(error => {
+            console.error('Error loading friend suggestions:', error);
+            document.getElementById('friend-suggestions').innerHTML = '<div class="error">Error loading suggestions</div>';
         });
     }
     
@@ -243,6 +275,45 @@
                 body: 'to=' + encodeURIComponent(e.target.dataset.to)
             }).then(() => loadFriends());
         }
+    });
+
+    // Handle friend request actions (accept/reject)
+    document.getElementById('received-requests').addEventListener('click', function(e) {
+        const actionBtn = e.target.closest('.accept-request, .reject-request');
+        if (!actionBtn) return;
+
+        const from = actionBtn.dataset.from;
+        const action = actionBtn.classList.contains('accept-request') ? 'accept' : 'reject';
+        const endpoint = action === 'accept' ? '/accept_friend_request' : '/reject_friend_request';
+
+        // Disable both buttons in the request card
+        const requestCard = actionBtn.closest('.request-card');
+        if (requestCard) {
+            requestCard.querySelectorAll('button').forEach(btn => btn.disabled = true);
+        }
+
+        fetch(endpoint, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: 'from=' + encodeURIComponent(from)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            // Show notification
+            showNotification(action === 'accept' ? 'Friend request accepted!' : 'Friend request rejected');
+            // Reload friends and requests
+            loadFriends();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Re-enable buttons on error
+            if (requestCard) {
+                requestCard.querySelectorAll('button').forEach(btn => btn.disabled = false);
+            }
+            showNotification('Error processing friend request');
+        });
     });
 
     // Search functionality
